@@ -71,11 +71,13 @@ export function Segmented<T extends string>({ value, onChange, options, label }:
   value: T; onChange: (v: T) => void; options: { value: T; label: ReactNode; icon?: string }[]; label: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [pill, setPill] = useState<{ x: number; w: number } | null>(null)
+  const [pill, setPill] = useState<{ x: number; w: number; y: number; h: number } | null>(null)
   useLayoutEffect(() => {
     const measure = () => {
       const el = ref.current?.querySelector<HTMLButtonElement>('button[aria-pressed="true"]')
-      if (el) setPill(p => (p && p.x === el.offsetLeft && p.w === el.offsetWidth) ? p : { x: el.offsetLeft, w: el.offsetWidth })
+      // wskaźnik bierze pozycję i rozmiar z aktywnego przycisku (także wysokość), żeby tekst był w nim na środku
+      if (el) setPill(p => (p && p.x === el.offsetLeft && p.w === el.offsetWidth && p.y === el.offsetTop && p.h === el.offsetHeight) ? p
+        : { x: el.offsetLeft, w: el.offsetWidth, y: el.offsetTop, h: el.offsetHeight })
     }
     measure()
     // szerokości zmieniają się po załadowaniu fontu i przy zmianie stylów: mierzymy ponownie
@@ -94,7 +96,7 @@ export function Segmented<T extends string>({ value, onChange, options, label }:
   }
   return (
     <div className="vsw" role="group" aria-label={label} ref={ref} onKeyDown={onKey}>
-      {pill && <i className="vsw-pill" aria-hidden="true" style={{ translate: `${pill.x - 2}px 0`, width: pill.w, left: 2 }} />}
+      {pill && <i className="vsw-pill" aria-hidden="true" style={{ translate: `${pill.x}px 0`, width: pill.w, left: 0, top: pill.y, height: pill.h }} />}
       {options.map(o => (
         <button key={o.value} type="button" aria-pressed={o.value === value} tabIndex={o.value === value ? 0 : -1} onClick={() => onChange(o.value)}>
           {o.icon && <Icon name={o.icon} size={14} />}{o.label}
