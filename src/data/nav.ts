@@ -10,7 +10,8 @@ const i = (label: string, erp?: string, route?: string): NavItem => ({ label, er
 const W = 'tylko „Wszystko”'
 
 export const NAV: NavSection[] = [
-  { id: 'start', label: 'Start', icon: 'home', groups: [{ items: [i('Strona Główna', 'IT', 'strona-glowna'), i('Kalendarz', W)] }] },
+  // według briefu: lewe menu zaczyna się od „Pulpit”
+  { id: 'pulpit', label: 'Pulpit', icon: 'home', groups: [{ items: [i('Pulpit', 'IT', 'pulpit'), i('Kalendarz', W)] }] },
   { id: 'klienci', label: 'Klient', icon: 'users', groups: [
     { items: [i('Klienci', 'Klient'), i('Byty powiązane', 'Klient'), i('Sidoma-Rachunki', 'Klient')] },
     { title: 'Dokumenty klienta', items: [i('Notatki Służbowe', 'Klient'), i('Oświadczenia do zleceń i transakcji', 'Klient'), i('Powiadomienia PN', 'Klient'), i('Dokumenty PN', W)] },
@@ -62,8 +63,6 @@ export const NAV_BOTTOM: NavSection[] = [
   ] },
 ]
 
-// Menu użytkownika (awatar na dole paska), jak w wireframe'ie
-export const USER_MENU = ['Profil', 'Pracownicy', 'Administrator', 'Forum wsparcia', 'O programie', 'Wyloguj']
 
 export const ALL = [...NAV, ...NAV_BOTTOM]
 

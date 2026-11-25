@@ -40,7 +40,7 @@ export function Login() {
 
   const signInMs = () => {
     setMode('ms')
-    window.setTimeout(() => { notify('Zalogowano kontem Microsoft'); go('strona-glowna') }, 1400)
+    window.setTimeout(() => { notify('Zalogowano kontem Microsoft'); go('pulpit') }, 1400)
   }
   const signInPw = (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,7 +111,7 @@ export function Login() {
           </div>
         )}
 
-        {mode === 'sms' && <Sms initial={stan} onBack={() => { setMode('wybor'); go('logowanie') }} onDone={() => { notify('Zalogowano. Potwierdzenie SMS ważne do końca dnia w tej przeglądarce.'); go('strona-glowna') }} />}
+        {mode === 'sms' && <Sms key={stan ?? 'sms'} initial={stan} onBack={() => { setMode('wybor'); go('logowanie') }} onDone={() => { notify('Zalogowano. Potwierdzenie SMS ważne do końca dnia w tej przeglądarce.'); go('pulpit') }} />}
 
         {(mode === 'blokada' || mode === 'blokada-it') && (
           <div className="auth-card auth-center" role="alert">

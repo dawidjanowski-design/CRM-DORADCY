@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { go, useApp } from '../store'
-import { findByRoute, itemRoute, NAV, NAV_BOTTOM, slug, USER_MENU, visibleNav, type NavSection } from '../data/nav'
+import { findByRoute, itemRoute, NAV, NAV_BOTTOM, visibleNav, type NavSection } from '../data/nav'
 import { Avatar, Icon, MsMark, menuKeys, useDismiss } from './ui'
 
 const NARROW = '(max-width: 900px)'
@@ -55,13 +55,11 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className={`shell ${open && current ? '' : 'panel-closed'}`}>
       <nav className="rail" aria-label="Moduły" onKeyDown={railKeys}>
-        <a className="rail-logo" href="#/strona-glowna" aria-label="MS OS, strona główna"
-          onMouseEnter={e => showTip(e.currentTarget, 'Strona Główna')} onMouseLeave={() => setTip(null)}><MsMark size={28} /></a>
+        <a className="rail-logo" href="#/pulpit" aria-label="MS OS, pulpit"
+          onMouseEnter={e => showTip(e.currentTarget, 'Pulpit')} onMouseLeave={() => setTip(null)}><MsMark size={28} /></a>
         <div className="rail-list">{top.map(rail)}</div>
         {bottom.length > 0 && <span className="rail-sep" />}
         <div className="rail-list">{bottom.map(rail)}</div>
-        <span className="grow" />
-        <UserMenu />
       </nav>
       {tip && <span className="rail-tip" role="tooltip" style={{ top: tip.top }}>{tip.label}</span>}
 
@@ -117,6 +115,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </button>
           <span className="grow" />
           <Recent />
+          <UserMenu />
         </header>
         <main className="card" id="main">{children}</main>
       </div>
@@ -137,26 +136,24 @@ function RailBtn({ s, active, open, onClick, onTip, onTipOff }: {
   )
 }
 
-/* ---------- menu użytkownika pod awatarem (na dole paska L1) ---------- */
+/* ---------- menu użytkownika w górnym pasku (według briefu): „Mój profil” i „Wyloguj” ---------- */
 function UserMenu() {
   const { user } = useApp()
   const [open, setOpen] = useState(false)
   const btn = useRef<HTMLButtonElement>(null), pop = useRef<HTMLDivElement>(null)
   useDismiss(open, () => setOpen(false), [btn, pop], btn)
   const openMenu = () => { setOpen(true); requestAnimationFrame(() => pop.current?.querySelector<HTMLElement>('[role=menuitem]')?.focus()) }
-  const act = (label: string) => {
-    setOpen(false)
-    if (label === 'Profil') go('profil')
-    else if (label === 'Wyloguj') go('logowanie?wylogowano=1')
-    else go('menu/' + slug(label))
-  }
+  const act = (to: string) => { setOpen(false); go(to) }
   return (
-    <div className="pop-anchor rail-me">
-      <button ref={btn} className="avatar-btn" aria-haspopup="menu" aria-expanded={open} aria-label={`Menu użytkownika: ${user.name}`} title={user.name}
-        onClick={() => open ? setOpen(false) : openMenu()} onKeyDown={e => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); openMenu() } }}>
-        <Avatar initials={user.initials} color={user.color} size={32} />
+    <div className="pop-anchor">
+      <button ref={btn} className="me" aria-haspopup="menu" aria-expanded={open} aria-label={`Menu użytkownika: ${user.name}`}
+        onClick={() => open ? setOpen(false) : openMenu()} onKeyDown={e => { if (e.key === 'ArrowDown') { e.preventDefault(); openMenu() } }}>
+        <Avatar initials={user.initials} color={user.color} size={24} />
+        <span className="me-name trunc">{user.name}</span>
+        <Icon name="chevron-down" size={14} />
       </button>
-      <div ref={pop} className={`pop up ${open ? 'open' : ''}`} role="menu" aria-label="Menu użytkownika" onKeyDown={e => menuKeys(e, () => setOpen(false))}>
+      <div ref={pop} className={`pop right ${open ? 'open' : ''}`} role="menu" aria-label="Menu użytkownika" style={{ top: 38, right: 0, width: 248 }}
+        onKeyDown={e => menuKeys(e, () => setOpen(false))}>
         <div className="m-card" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <Avatar initials={user.initials} color={user.color} size={32} />
           <div style={{ minWidth: 0 }}>
@@ -165,19 +162,13 @@ function UserMenu() {
           </div>
         </div>
         <div style={{ height: 4 }} />
-        {USER_MENU.map(l => (
-          <div key={l}>
-            {l === 'Wyloguj' && <div className="m-sep" />}
-            <button className="mi" role="menuitem" tabIndex={-1} onClick={() => act(l)}>
-              <Icon name={ICON[l]} size={14} />{l}
-            </button>
-          </div>
-        ))}
+        <button className="mi" role="menuitem" tabIndex={-1} onClick={() => act('profil')}><Icon name="user" size={14} />Mój profil</button>
+        <div className="m-sep" />
+        <button className="mi" role="menuitem" tabIndex={-1} onClick={() => act('logowanie?wylogowano=1')}><Icon name="log-out" size={14} />Wyloguj</button>
       </div>
     </div>
   )
 }
-const ICON: Record<string, string> = { Profil: 'user', Pracownicy: 'users', Administrator: 'settings', 'Forum wsparcia': 'message-circle', 'O programie': 'info', Wyloguj: 'log-out' }
 
 /* ---------- „Ostatnio przeglądane” ---------- */
 const RECENT = [

@@ -1,12 +1,12 @@
-import { findByRoute, USER_MENU, slug } from '../data/nav'
+import { findByRoute } from '../data/nav'
 import { Empty, Icon, PageHead } from '../components/ui'
 import { gridStyle, TableHead, type Col } from '../components/Table'
 
-/* Strona główna: na razie bez treści, ale już w pełnym szkielecie z menu */
+/* Pulpit: na razie bez treści, ale już w pełnym szkielecie z menu */
 export function Home() {
   return (
     <>
-      <PageHead icon="home" title="Strona Główna" />
+      <PageHead icon="home" title="Pulpit" />
       <div className="page" />
     </>
   )
@@ -48,23 +48,12 @@ export function ModulePage({ path }: { path: string }) {
   )
 }
 
-/* Pozycje menu użytkownika poza Profilem i Wyloguj */
-export function UserMenuPage({ id }: { id: string }) {
-  const label = USER_MENU.find(l => slug(l) === id) ?? 'Strona'
-  return (
-    <>
-      <PageHead icon="user" title={label} />
-      <div className="page" />
-    </>
-  )
-}
-
 export function NotFound() {
   return (
     <>
       <PageHead icon="alert-circle" title="Nie znaleziono" />
       <div className="page"><Empty icon="compass" title="Tej strony nie ma" hint="Adres mógł się zmienić albo moduł jest ukryty w menu."
-        action={<a className="btn btn-secondary" href="#/strona-glowna">Strona Główna</a>} /></div>
+        action={<a className="btn btn-secondary" href="#/pulpit">Pulpit</a>} /></div>
     </>
   )
 }

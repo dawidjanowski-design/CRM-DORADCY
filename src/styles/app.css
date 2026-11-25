@@ -350,13 +350,5 @@
 .perms .tr>.two{padding:8px 12px 8px 16px}
 
 /* ================= nawigacja 1:1 z wireframe'u ================= */
-.rail-me{margin-top:8px}
-.avatar-btn{display:flex;padding:2px;border:0;border-radius:50%;background:transparent;cursor:pointer;transition:box-shadow 150ms ease-out,scale 150ms ease-out}
-.avatar-btn[aria-expanded="true"]{box-shadow:0 0 0 2px var(--selected)}
-.avatar-btn:active{scale:.96}
-@media (hover:hover){.avatar-btn:hover{box-shadow:0 0 0 2px var(--hover)}}
-/* menu awatara otwiera się w górę i w prawo od paska */
-/* fixed, bo przewijany pasek L1 przycinałby menu */
-.pop.up{position:fixed;left:calc(var(--rail) + 4px);bottom:12px;top:auto;width:248px;transform-origin:bottom left}
 
 
