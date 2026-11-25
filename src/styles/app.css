@@ -441,3 +441,27 @@
 .plist .r{flex:none}   /* przewijana lista flex nie może ściskać wierszy */
 .plist .r .two{padding:12px 0}
 .preq-i .two{padding:12px 0}
+
+/* ================= ⌘K: szkło w stylu Spotlight =================
+   półprzezroczyste tło + rozmycie i nasycenie tego, co pod spodem; jasny pierścień od środka
+   daje krawędź szkła. Promień 18 = wiersze 10 + wcięcie 8. Bez backdrop-filter: prawie pełne tło. */
+.cmd{border-radius:18px;background:rgba(250,250,251,.68);border:0;
+  -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 0 0 1px rgba(0,0,0,.08),0 24px 48px -12px rgba(0,0,0,.28),0 48px 96px -24px rgba(0,0,0,.22)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.cmd{background:rgba(250,250,251,.97)}}
+.dlg-scrim.open:has(+ .cmd.open){background:rgba(17,17,17,.06)}
+.cmd-in{border-bottom-color:rgba(0,0,0,.06)}
+.cmd-in input::placeholder{color:rgba(0,0,0,.38)}
+.cmd .kbd{background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 -1px 0 rgba(0,0,0,.06)}
+.cmd-scopes{border-bottom-color:rgba(0,0,0,.06)}
+.scope[aria-selected="true"]{background:rgba(255,255,255,.75);box-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.06)}
+@media (hover:hover){.cmd .scope:not([aria-selected="true"]):hover{background:rgba(0,0,0,.04)}}
+.cmd-list{padding:6px 8px 8px}
+.cmd .opt{border-radius:10px}
+.cmd .opt[aria-selected="true"]{background:rgba(0,0,0,.055)}
+.cmd .opt .oi{background:rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05)}
+.cmd .opt .oi.act{background:rgba(235,242,255,.8);box-shadow:0 0 0 1px rgba(47,123,246,.22)}
+.cmd .opt .sub::before{color:rgba(0,0,0,.15)}
+.cmd-g{color:rgba(0,0,0,.42)}
+.cmd-foot{background:rgba(255,255,255,.35);border-top-color:rgba(0,0,0,.06)}
+.cmd-empty-i{background:rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(0,0,0,.06)}
