@@ -171,62 +171,68 @@ export const REQUESTS: Request[] = [
 ]
 
 // ---------- role i zasoby ----------
-export type Perm = { id: string; name: string; fields: string; level: Level; scope: string; actions: { eksport: boolean; druk: boolean } }
+// fields: wybrane dane lub pola, których dotyczy uprawnienie (administrator ustala je w wierszu roli)
+export type Perm = { id: string; name: string; fields: string[]; level: Level; scope: string; actions: { eksport: boolean; druk: boolean } }
 export type RoleDef = { name: string; owner: string; deputy: string; compliance: boolean; holders: string[]; holderCount: number; desc: string; perms: Perm[] }
 
-export const PREDEFINED: { name: string; fields: string }[] = [
-  { name: 'Karta klienta', fields: 'Dane podstawowe, rachunki' },
-  { name: 'Dane kontaktowe klienta', fields: 'E-mail, telefon, adres' },
-  { name: 'Telefon klienta', fields: 'Numer telefonu' },
-  { name: 'Zapisy na obligacje', fields: 'Wszystkie pola' },
-  { name: 'Zapisy na FIZ', fields: 'Wszystkie pola' },
-  { name: 'Historia kontaktów', fields: 'Notatki, spotkania, rozmowy' },
-  { name: 'Transakcje', fields: 'Wszystkie pola' },
-  { name: 'Zlecenia', fields: 'Wszystkie pola' },
-  { name: 'Raport „Aktywność klientów POK”', fields: 'Cały raport' },
-  { name: 'Raport „Sprzedaż obligacji POK”', fields: 'Cały raport' },
-  { name: 'Kalendarz płatności emisji', fields: 'Daty, kwoty' },
-  { name: 'Lista klientów', fields: 'Imię, nazwisko, doradca, POK' },
+// Predefiniowane uprawnienia MS OS z katalogiem danych i pól do wyboru
+export const PREDEFINED: { name: string; fields: string[] }[] = [
+  { name: 'Karta klienta', fields: ['Dane podstawowe', 'Rachunki', 'Dokumenty tożsamości', 'Ankieta adekwatności'] },
+  { name: 'Dane kontaktowe klienta', fields: ['E-mail', 'Telefon', 'Adres korespondencyjny', 'Adres zamieszkania'] },
+  { name: 'Telefon klienta', fields: ['Numer telefonu'] },
+  { name: 'Zapisy na obligacje', fields: ['Seria', 'Liczba obligacji', 'Kwota', 'Rachunek', 'Status'] },
+  { name: 'Zapisy na FIZ', fields: ['Fundusz', 'Liczba certyfikatów', 'Kwota', 'Status'] },
+  { name: 'Historia kontaktów', fields: ['Notatki', 'Spotkania', 'Rozmowy telefoniczne', 'Wiadomości e-mail'] },
+  { name: 'Transakcje', fields: ['Instrument', 'Kierunek', 'Wartość nominalna', 'Data rozliczenia', 'ID transakcji'] },
+  { name: 'Zlecenia', fields: ['Instrument', 'Kierunek', 'Limit ceny', 'Status'] },
+  { name: 'Raport „Aktywność klientów POK”', fields: ['Zdarzenia', 'Klienci', 'Doradcy'] },
+  { name: 'Raport „Sprzedaż obligacji POK”', fields: ['Wartość sprzedaży', 'Liczba klientów', 'Doradcy'] },
+  { name: 'Kalendarz płatności emisji', fields: ['Daty', 'Kwoty', 'Emitenci'] },
+  { name: 'Lista klientów', fields: ['Imię i nazwisko', 'Doradca', 'POK', 'Status klienta'] },
 ]
+export const catalog = (name: string) => PREDEFINED.find(p => p.name === name)?.fields ?? []
+/* Etykieta wyboru: wszystkie pola → „Wszystkie pola”, inaczej lista */
+export const fieldsLabel = (name: string, fields: string[]) =>
+  !fields.length ? 'Nie wybrano pól' : fields.length === catalog(name).length ? 'Wszystkie pola' : fields.join(', ')
 
 let n = 0
-const perm = (name: string, fields: string, level: Level, scope: string, eksport = false, druk = false): Perm =>
-  ({ id: 'p' + (++n), name, fields, level, scope, actions: { eksport, druk } })
+const perm = (name: string, fields: string[] | 'all', level: Level, scope: string, eksport = false, druk = false): Perm =>
+  ({ id: 'p' + (++n), name, fields: fields === 'all' ? catalog(name) : fields, level, scope, actions: { eksport, druk } })
 
 export const ROLES: RoleDef[] = [
   { name: 'Doradca POK', owner: 'Anna Sobczak', deputy: 'Tomasz Rybak', compliance: true, holderCount: 14,
     holders: ['Marta Wilczek', 'Jan Ostrowski', 'Ola Pietrzak', 'Tomasz Rybak'],
     desc: 'Obsługa własnych klientów w punkcie obsługi klienta.',
     perms: [
-      perm('Karta klienta', 'Dane podstawowe, rachunki', 'Odczyt', 'Własni klienci', false, true),
-      perm('Dane kontaktowe klienta', 'E-mail, telefon, adres', 'Odczyt', 'Klienci POK'),
-      perm('Zapisy na obligacje', 'Wszystkie pola', 'Edycja', 'Własni klienci', false, true),
-      perm('Historia kontaktów', 'Notatki, spotkania, rozmowy', 'Edycja', 'Własni klienci'),
-      perm('Transakcje', 'Wszystkie pola', 'Odczyt', 'Własni klienci'),
-      perm('Lista klientów', 'Imię, nazwisko, doradca, POK', 'Odczyt', 'Klienci POK', false),
+      perm('Karta klienta', ['Dane podstawowe', 'Rachunki'], 'Odczyt', 'Własni klienci', false, true),
+      perm('Dane kontaktowe klienta', 'all', 'Odczyt', 'Klienci POK'),
+      perm('Zapisy na obligacje', 'all', 'Edycja', 'Własni klienci', false, true),
+      perm('Historia kontaktów', ['Notatki', 'Spotkania', 'Rozmowy telefoniczne'], 'Edycja', 'Własni klienci'),
+      perm('Transakcje', 'all', 'Odczyt', 'Własni klienci'),
+      perm('Lista klientów', ['Imię i nazwisko', 'Doradca', 'POK'], 'Odczyt', 'Klienci POK'),
     ] },
   { name: 'Kierownik POK', owner: 'Anna Sobczak', deputy: 'Lech Wójcik', compliance: true, holderCount: 6,
     holders: ['Tomasz Rybak'], desc: 'Nadzór nad zespołem POK i decyzje o dostępach zespołu.',
     perms: [
-      perm('Raport „Aktywność klientów POK”', 'Cały raport', 'Odczyt', 'Klienci POK', true),
-      perm('Lista klientów', 'Imię, nazwisko, doradca, POK', 'Odczyt', 'Klienci POK', true),
-      perm('Historia kontaktów', 'Notatki, spotkania, rozmowy', 'Odczyt', 'Klienci POK'),
+      perm('Raport „Aktywność klientów POK”', 'all', 'Odczyt', 'Klienci POK', true),
+      perm('Lista klientów', 'all', 'Odczyt', 'Klienci POK', true),
+      perm('Historia kontaktów', ['Notatki', 'Spotkania', 'Rozmowy telefoniczne'], 'Odczyt', 'Klienci POK'),
     ] },
   { name: 'Agent firmy inwestycyjnej', owner: 'Anna Sobczak', deputy: 'Tomasz Rybak', compliance: true, holderCount: 9,
     holders: ['Krzysztof Bielecki'], desc: 'Obsługa klientów przypisanych agentowi.',
     perms: [
-      perm('Karta klienta', 'Dane podstawowe', 'Odczyt', 'Własni klienci'),
-      perm('Zapisy na obligacje', 'Wszystkie pola', 'Edycja', 'Własni klienci'),
+      perm('Karta klienta', ['Dane podstawowe'], 'Odczyt', 'Własni klienci'),
+      perm('Zapisy na obligacje', 'all', 'Edycja', 'Własni klienci'),
     ] },
   { name: 'Operacje — przypisania', owner: 'Lech Wójcik', deputy: 'Karolina Mazur', compliance: false, holderCount: 4,
     holders: ['Karolina Mazur'], desc: 'Przypisywanie klientów i leadów do doradców.',
     perms: [
-      perm('Lista klientów', 'Imię, nazwisko, doradca, POK', 'Edycja', 'Wszyscy klienci', true),
-      perm('Karta klienta', 'Dane podstawowe, rachunki', 'Odczyt', 'Wszyscy klienci'),
+      perm('Lista klientów', 'all', 'Edycja', 'Wszyscy klienci', true),
+      perm('Karta klienta', ['Dane podstawowe', 'Rachunki'], 'Odczyt', 'Wszyscy klienci'),
     ] },
   { name: 'Administrator CBU', owner: 'Ireneusz Kot', deputy: 'Paweł Szulc', compliance: true, holderCount: 2,
     holders: ['Paweł Szulc'], desc: 'Edycja składu ról i wykonywanie zmian w dostępach.',
-    perms: [perm('Karta klienta', 'Dane podstawowe', 'Brak', 'Bez zakresu')] },
+    perms: [perm('Karta klienta', ['Dane podstawowe'], 'Brak', 'Bez zakresu')] },
 ]
 
 export type ResourceDef = { name: string; system: string; owner: string; exec: 'auto' | 'it'; holders: number; desc: string }

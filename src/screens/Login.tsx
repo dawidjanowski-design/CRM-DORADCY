@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { go, useApp } from '../store'
-import { Dialog, Icon, MicrosoftMark, MsMark } from '../components/ui'
+import { Icon, MicrosoftMark, MsMark } from '../components/ui'
 
-type Mode = 'wybor' | 'ms' | 'sms' | 'blokada' | 'blokada-it'
+type Mode = 'wybor' | 'ms' | 'sms' | 'blokada' | 'blokada-it' | 'pomoc'
 const IT_PHONE = '22 455 10 99'
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 const clock = (addMin: number) => {
@@ -22,7 +22,6 @@ export function Login() {
   const [pw, setPw] = useState('')
   const [pwErr, setPwErr] = useState<string | null>(null)
   const [fails, setFails] = useState(0)
-  const [help, setHelp] = useState(false)
 
   // stany ekranu dostępne też z adresu (?stan=…)
   useEffect(() => {
@@ -32,6 +31,7 @@ export function Login() {
     else if (stan === 'sms' || stan === 'kod-wygasl' || stan === 'limit') setMode('sms')
     else if (stan === 'blokada') setMode('blokada')
     else if (stan === 'blokada-it') setMode('blokada-it')
+    else if (stan === 'pomoc') setMode('pomoc')
     else { setMode('wybor'); setPwOpen(false) }
   }, [stan]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -113,6 +113,8 @@ export function Login() {
 
         {mode === 'sms' && <Sms key={stan ?? 'sms'} initial={stan} onBack={() => { setMode('wybor'); go('logowanie') }} onDone={() => { notify('Zalogowano. Potwierdzenie SMS ważne do końca dnia w tej przeglądarce.'); go('pulpit') }} />}
 
+        {mode === 'pomoc' && <HelpForm initialLogin={login} onBack={() => { setMode('wybor'); go('logowanie') }} />}
+
         {(mode === 'blokada' || mode === 'blokada-it') && (
           <div className="auth-card auth-center" role="alert">
             <span className="auth-tile warn"><Icon name="lock" size={18} /></span>
@@ -126,24 +128,88 @@ export function Login() {
           </div>
         )}
 
-        <div className="auth-help">
-          <button className="link" onClick={() => setHelp(true)} aria-haspopup="dialog">Problem z logowaniem?</button>
-          <span className="dim">Bez VPN? Zadzwoń do IT: <span className="num">{IT_PHONE}</span></span>
-        </div>
+        {mode !== 'pomoc' && (
+          <div className="auth-help">
+            <button className="link" onClick={() => setMode('pomoc')}>Problem z logowaniem?</button>
+            <span className="dim">Bez VPN? Zadzwoń do IT: <span className="num">{IT_PHONE}</span></span>
+          </div>
+        )}
       </div>
 
-      <Dialog open={help} onClose={() => setHelp(false)} title="Problem z logowaniem?" sub="Zgłoś problem do IT. Odpowiemy w godzinach pracy działu."
-        footer={<>
-          <button className="btn btn-ghost" onClick={() => setHelp(false)}>Zamknij</button>
-          <button className="btn btn-primary" onClick={() => { setHelp(false); notify('Formularz IT otwiera się w nowej karcie') }}><Icon name="external-link" size={14} />Otwórz formularz IT</button>
-        </>}>
-        <div className="help-row"><span className="help-i"><Icon name="wifi" size={14} /></span>
-          <div><b>Formularz zgłoszenia</b><p className="muted">Działa bez logowania w sieci firmy albo po połączeniu z VPN.</p></div></div>
-        <div className="help-row"><span className="help-i"><Icon name="phone" size={14} /></span>
-          <div><b>Nie masz dostępu do VPN?</b><p className="muted">Zadzwoń do IT: <span className="num" style={{ color: 'var(--t)' }}>{IT_PHONE}</span>, pon.–pt. 7:30–18:00.</p></div></div>
-        <div className="help-row"><span className="help-i"><Icon name="key" size={14} /></span>
-          <div><b>Zapomniane hasło firmowe</b><p className="muted">Hasło resetuje IT. MS OS nie zmienia hasła samodzielnie.</p></div></div>
-      </Dialog>
+    </div>
+  )
+}
+
+/* ---------- formularz IT pod linkiem „Problem z logowaniem?” ----------
+   Działa bez logowania w sieci firmy lub po VPN (brief). Bez VPN: telefon do IT. */
+const ISSUES: [string, string, string][] = [
+  ['haslo', 'Nie pamiętam hasła', 'key'],
+  ['sms', 'Nie dostaję kodu SMS', 'message-square'],
+  ['blokada', 'Konto jest zablokowane', 'lock'],
+  ['microsoft', 'Nie działa logowanie kontem Microsoft', 'log-in'],
+  ['inny', 'Inny problem', 'help-circle'],
+]
+
+function HelpForm({ initialLogin, onBack }: { initialLogin: string; onBack: () => void }) {
+  const [issue, setIssue] = useState('')
+  const [who, setWho] = useState(initialLogin)
+  const [desc, setDesc] = useState('')
+  const [tried, setTried] = useState(false)
+  const [sent, setSent] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const first = useRef<HTMLInputElement>(null)
+  useEffect(() => { first.current?.focus() }, [])
+
+  const needDesc = issue === 'inny'
+  const errs = { issue: !issue, who: !who.trim(), desc: needDesc && desc.trim().length < 10 }
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault(); setTried(true)
+    if (errs.issue || errs.who || errs.desc) return
+    setBusy(true); window.setTimeout(() => { setBusy(false); setSent('ZG-1049') }, 600)
+  }
+
+  if (sent) return (
+    <div className="auth-card auth-center" role="status">
+      <span className="auth-tile ok"><Icon name="check" size={18} /></span>
+      <h1 className="auth-h" style={{ marginBottom: 4 }}>Zgłoszenie przyjęte</h1>
+      <p className="muted">Numer zgłoszenia: <b className="num" style={{ color: 'var(--t)' }}>{sent}</b>. IT odpowie na adres służbowy w godzinach pracy działu, pon.–pt. 7:30–18:00.</p>
+      <button className="btn btn-secondary" onClick={onBack}><Icon name="arrow-left" size={14} />Wróć do logowania</button>
+    </div>
+  )
+
+  return (
+    <div className="auth-card">
+      <button className="btn btn-ghost auth-back" onClick={onBack}><Icon name="arrow-left" size={14} />Wróć do logowania</button>
+      <h1 className="auth-h" style={{ marginBottom: 6 }}>Zgłoś problem do IT</h1>
+      <p className="auth-net"><Icon name="wifi" size={14} /><span>Formularz działa bez logowania w sieci firmy lub po VPN. Bez dostępu do VPN zadzwoń do IT: <b className="num">{IT_PHONE}</b>.</span></p>
+      <form className="auth-form" onSubmit={submit} noValidate>
+        <fieldset className="issues" aria-describedby="issue-msg">
+          <legend className="flabel">Czego dotyczy problem?</legend>
+          {ISSUES.map(([k, l, ic], i) => (
+            <label key={k} className={`issue ${issue === k ? 'on' : ''}`}>
+              <input ref={i === 0 ? first : undefined} type="radio" name="issue" value={k} checked={issue === k} onChange={() => setIssue(k)} />
+              <span className="issue-i"><Icon name={ic} size={14} /></span><span className="grow">{l}</span><span className="rd" />
+            </label>
+          ))}
+          <div id="issue-msg">{tried && errs.issue && <p className="err"><Icon name="alert-circle" size={14} />Wybierz, czego dotyczy problem.</p>}</div>
+        </fieldset>
+        <div className="field">
+          <label htmlFor="h-who">Firmowy e-mail lub login</label>
+          <input id="h-who" className="input input-lg" value={who} onChange={e => setWho(e.target.value)} autoComplete="username" spellCheck={false}
+            placeholder="np. jan.kowalski@ms-dm.pl" aria-invalid={tried && errs.who} aria-describedby="h-who-msg" />
+          <div id="h-who-msg">{tried && errs.who ? <p className="err"><Icon name="alert-circle" size={14} />Podaj e-mail lub login, żeby IT znalazło Twoje konto.</p>
+            : <p className="hint">Na ten adres przyjdzie odpowiedź z IT.</p>}</div>
+        </div>
+        <div className="field">
+          <label htmlFor="h-desc">Opis problemu{!needDesc && <span className="dim"> (opcjonalnie)</span>}</label>
+          <textarea id="h-desc" className="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Co się dzieje i od kiedy? Np. treść komunikatu na ekranie"
+            aria-invalid={tried && errs.desc} />
+          {tried && errs.desc && <p className="err"><Icon name="alert-circle" size={14} />Opisz krótko problem (min. 10 znaków).</p>}
+        </div>
+        <button className="btn btn-primary btn-lg btn-block" type="submit" disabled={busy}>
+          {busy ? <><Icon name="loader" size={14} className="spin" />Wysyłamy…</> : <><Icon name="send" size={14} />Wyślij zgłoszenie</>}
+        </button>
+      </form>
     </div>
   )
 }

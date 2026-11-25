@@ -25,7 +25,7 @@ Nie ma widoków per rola. Jest jeden zalogowany użytkownik (`src/data/user.ts`)
 Struktura menu jest w `src/data/nav.ts`. Elementy ukrywa się przez zbiór `hidden` w store (`setHidden(klucz, true)`):
 id sekcji (np. `kadry`) albo klucz pozycji (np. `it/workflow`). Sekcja bez widocznych pozycji znika z paska.
 
-Ekran logowania ma stany dostępne z adresu: `#/logowanie?stan=haslo|blad-hasla|sms|kod-wygasl|limit|blokada|blokada-it` oraz `#/logowanie?wygasla=1`.
+Ekran logowania ma stany dostępne z adresu: `#/logowanie?stan=haslo|blad-hasla|sms|kod-wygasl|limit|blokada|blokada-it|pomoc` oraz `#/logowanie?wygasla=1`.
 Kod SMS `000000` jest błędny, każdy inny przechodzi.
 
 ## Tabele

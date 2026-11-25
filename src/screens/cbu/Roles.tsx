@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../../store'
-import { person as personOf, PREDEFINED, RESOURCES, SCOPES, type Level, type Perm, type RoleDef } from '../../data/cbu'
+import { catalog, fieldsLabel, person as personOf, PREDEFINED, RESOURCES, SCOPES, type Level, type Perm, type RoleDef } from '../../data/cbu'
 import { Avatar, Dialog, Icon, InsetCard, menuKeys, Segmented, useDismiss } from '../../components/ui'
 
 export function Roles() {
@@ -51,7 +51,8 @@ export function Roles() {
 }
 
 const LEVELS: Level[] = ['Brak', 'Odczyt', 'Edycja']
-const same = (a: Perm, b?: Perm) => !!b && a.level === b.level && a.scope === b.scope && a.actions.eksport === b.actions.eksport && a.actions.druk === b.actions.druk
+const sameFields = (a: string[], b: string[]) => a.length === b.length && a.every(f => b.includes(f))
+const same = (a: Perm, b?: Perm) => !!b && a.level === b.level && a.scope === b.scope && sameFields(a.fields, b.fields) && a.actions.eksport === b.actions.eksport && a.actions.druk === b.actions.druk
 
 function RoleDetail({ role }: { role: RoleDef }) {
   const { saveRole, notify } = useApp()
@@ -70,6 +71,7 @@ function RoleDetail({ role }: { role: RoleDef }) {
   const upd = (id: string, patch: Partial<Perm>) => setDraft(d => d.map(p => p.id === id ? { ...p, ...patch } : p))
   const save = () => { saveRole(role.name, draft); setReview(false); notify(`Zapisano rolę „${role.name}”. Zmiana objęła ${role.holderCount} posiadaczy.`) }
   const owner = false
+  const invalid = draft.some(p => p.level !== 'Brak' && !p.fields.length)
 
   return (
     <div className="split-r">
@@ -86,16 +88,20 @@ function RoleDetail({ role }: { role: RoleDef }) {
       </div>
 
       <InsetCard title="Zestaw uprawnień" icon="sliders" count={draft.filter(p => p.level !== 'Brak').length}
-        right={edit ? <AddPerm existing={draft.map(p => p.name)} onAdd={(name, fields) => setDraft(d => [...d, { id: 'n' + Date.now(), name, fields, level: 'Odczyt', scope: 'Własni klienci', actions: { eksport: false, druk: false } }])} />
+        right={edit ? <AddPerm existing={draft.map(p => p.name)} onAdd={(name, fields) => setDraft(d => [...d, { id: 'n' + Date.now(), name, fields: [...fields], level: 'Odczyt', scope: 'Własni klienci', actions: { eksport: false, druk: false } }])} />
           : <span className="dim" style={{ fontSize: 12, paddingRight: 4 }}>Tylko do odczytu</span>}>
         <div className="tbl perms" role="table" aria-label={`Uprawnienia roli ${role.name}`}>
-          <div className="tr th" role="row"><span role="columnheader">Uprawnienie MS OS</span><span role="columnheader">Poziom</span><span role="columnheader">Zakres</span><span role="columnheader">Czynności</span><span role="columnheader"><span className="sr-only">Usuń</span></span></div>
+          <div className="tr th" role="row"><span role="columnheader">Uprawnienie MS OS</span><span role="columnheader">Dane i pola</span><span role="columnheader">Poziom</span><span role="columnheader">Zakres</span><span role="columnheader">Czynności</span><span role="columnheader"><span className="sr-only">Usuń</span></span></div>
           {draft.map(p => {
             const b = role.perms.find(x => x.id === p.id)
             const dirty = !same(p, b)
             return (
               <div key={p.id} className={`tr ${dirty ? 'dirty' : ''} ${p.level === 'Brak' ? 'off' : ''}`} role="row">
-                <span role="cell" className="two"><span className="trunc" style={{ color: 'var(--t-strong)' }}>{p.name}</span><span className="meta trunc">{p.fields}</span></span>
+                <span role="cell"><span className="trunc" style={{ color: 'var(--t-strong)' }} title={p.name}>{p.name}</span></span>
+                <span role="cell" className="two">
+                  <FieldPicker perm={p} disabled={p.level === 'Brak'} onChange={fields => upd(p.id, { fields })} />
+                  {!p.fields.length && p.level !== 'Brak' && <span className="err" style={{ marginTop: 4 }}>Wybierz co najmniej jedno pole</span>}
+                </span>
                 <span role="cell">{edit ? <Segmented label={`Poziom: ${p.name}`} value={p.level} onChange={level => upd(p.id, { level })} options={LEVELS.map(l => ({ value: l, label: l }))} />
                   : <span className={`lvl lvl-${p.level === 'Edycja' ? 'e' : p.level === 'Odczyt' ? 'o' : 'n'}`}>{p.level}</span>}</span>
                 <span role="cell">{edit ? <select className="select sm" aria-label={`Zakres: ${p.name}`} value={p.scope} onChange={e => upd(p.id, { scope: e.target.value })} disabled={p.level === 'Brak'}>{SCOPES.map(s => <option key={s}>{s}</option>)}</select>
@@ -117,7 +123,7 @@ function RoleDetail({ role }: { role: RoleDef }) {
             <span className="udot" /><span><b className="num">{changes.length}</b> {changes.length === 1 ? 'zmiana' : 'zmiany'} · obejmie <b className="num">{role.holderCount}</b> posiadaczy roli</span>
             <span className="grow" />
             <button className="btn btn-ghost" onClick={() => setDraft(role.perms)}>Odrzuć</button>
-            <button className="btn btn-primary" onClick={() => setReview(true)}>Przejrzyj i zapisz</button>
+            <button className="btn btn-primary" onClick={() => setReview(true)} disabled={invalid}>Przejrzyj i zapisz</button>
           </div>
         )}
       </InsetCard>
@@ -142,6 +148,7 @@ function RoleDetail({ role }: { role: RoleDef }) {
 
 function diffText(a: Perm, b: Perm) {
   const out: string[] = []
+  if (!sameFields(a.fields, b.fields)) out.push(`pola: ${fieldsLabel(a.name, a.fields)} → ${fieldsLabel(b.name, b.fields)}`)
   if (a.level !== b.level) out.push(`poziom: ${a.level} → ${b.level}`)
   if (a.scope !== b.scope) out.push(`zakres: ${a.scope} → ${b.scope}`)
   if (a.actions.eksport !== b.actions.eksport) out.push(`eksport: ${b.actions.eksport ? 'włączony' : 'wyłączony'}`)
@@ -149,7 +156,7 @@ function diffText(a: Perm, b: Perm) {
   return out.join(' · ')
 }
 
-function AddPerm({ existing, onAdd }: { existing: string[]; onAdd: (name: string, fields: string) => void }) {
+function AddPerm({ existing, onAdd }: { existing: string[]; onAdd: (name: string, fields: string[]) => void }) {
   const [open, setOpen] = useState(false)
   const btn = useRef<HTMLButtonElement>(null), pop = useRef<HTMLDivElement>(null)
   useDismiss(open, () => setOpen(false), [btn, pop], btn)
@@ -164,11 +171,62 @@ function AddPerm({ existing, onAdd }: { existing: string[]; onAdd: (name: string
         <div style={{ maxHeight: 280, overflowY: 'auto' }}>
           {left.map(p => (
             <button key={p.name} className="mi" role="menuitem" tabIndex={-1} style={{ height: 44 }} onClick={() => { onAdd(p.name, p.fields); setOpen(false); btn.current?.focus() }}>
-              <span className="two" style={{ padding: 0 }}><span className="trunc">{p.name}</span><span className="meta trunc" style={{ fontSize: 12, color: 'var(--t-4)' }}>{p.fields}</span></span>
+              <span className="two" style={{ padding: 0 }}><span className="trunc">{p.name}</span><span className="meta trunc" style={{ fontSize: 12, color: 'var(--t-4)' }}>{p.fields.join(', ')}</span></span>
             </button>
           ))}
         </div>
       </div>
     </div>
+  )
+}
+
+/* Wybór danych i pól, których dotyczy uprawnienie (katalog z PREDEFINED).
+   Menu jest fixed, bo karta tabeli przycina przepełnienie. */
+function FieldPicker({ perm, disabled, onChange }: { perm: Perm; disabled?: boolean; onChange: (f: string[]) => void }) {
+  const all = catalog(perm.name)
+  const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null)
+  const btn = useRef<HTMLButtonElement>(null), pop = useRef<HTMLDivElement>(null)
+  useDismiss(open, () => setOpen(false), [btn, pop], btn)
+  useEffect(() => {
+    if (!open) return
+    const close = (e: Event) => { if (!pop.current?.contains(e.target as Node)) setOpen(false) }
+    window.addEventListener('scroll', close, true); window.addEventListener('resize', close)
+    return () => { window.removeEventListener('scroll', close, true); window.removeEventListener('resize', close) }
+  }, [open])
+  const show = () => {
+    const r = btn.current!.getBoundingClientRect()
+    setPos({ top: r.bottom + 4, left: r.left, width: Math.max(r.width, 248) }); setOpen(true)
+    requestAnimationFrame(() => pop.current?.querySelector<HTMLElement>('[role=menuitemcheckbox]')?.focus())
+  }
+  const toggle = (f: string) => onChange(perm.fields.includes(f) ? perm.fields.filter(x => x !== f) : all.filter(x => x === f || perm.fields.includes(x)))
+  const label = fieldsLabel(perm.name, perm.fields)
+  return (
+    <>
+      <button ref={btn} className={`fpick ${!perm.fields.length ? 'empty' : ''}`} disabled={disabled} aria-haspopup="menu" aria-expanded={open}
+        aria-label={`Dane i pola: ${perm.name}. Wybrane: ${label}`} onClick={() => open ? setOpen(false) : show()}
+        onKeyDown={e => { if (e.key === 'ArrowDown' && !open) { e.preventDefault(); show() } }}>
+        {/* częściowy wybór: pierwsze pole + licznik reszty, pełna lista w podpowiedzi */}
+        <span className="trunc" title={label}>{perm.fields.length > 0 && perm.fields.length < all.length ? perm.fields[0] : label}</span>
+        {perm.fields.length > 1 && perm.fields.length < all.length && <span className="fpick-n num">+{perm.fields.length - 1}</span>}
+        <Icon name="chevron-down" size={14} />
+      </button>
+      <div ref={pop} className={`fmenu fixed ${open ? 'open' : ''}`} role="menu" aria-label={`Dane i pola: ${perm.name}`}
+        style={pos ? { top: pos.top, left: pos.left, minWidth: pos.width } : undefined} onKeyDown={e => menuKeys(e, () => setOpen(false))}>
+        <div className="fm-h">Dane i pola · {perm.name}</div>
+        <div className="fm-list">
+          {all.map(f => (
+            <button key={f} className="fo" role="menuitemcheckbox" aria-checked={perm.fields.includes(f)} tabIndex={-1} onClick={() => toggle(f)}>
+              <span className="cb"><Icon name="check" size={12} /></span><span className="trunc">{f}</span>
+            </button>
+          ))}
+        </div>
+        <div className="fm-foot"><span>{perm.fields.length} z {all.length}</span>
+          {perm.fields.length < all.length
+            ? <button onClick={() => onChange([...all])}>Zaznacz wszystkie</button>
+            : <button onClick={() => onChange([])}>Wyczyść</button>}
+        </div>
+      </div>
+    </>
   )
 }

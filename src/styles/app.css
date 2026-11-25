@@ -127,9 +127,6 @@
 .auth-resend{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;font-size:12px;line-height:16px}
 .auth-help{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}
 .auth-help .link{font-size:13px}
-.help-row{display:flex;gap:12px;align-items:flex-start;line-height:20px}
-.help-row b{font-weight:600;color:var(--t-strong)}
-.help-i{width:28px;height:28px;flex:none;border-radius:8px;background:var(--chip);color:var(--t-3);display:flex;align-items:center;justify-content:center}
 
 /* ================= pulpit ================= */
 .dash{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);align-items:start;gap:16px}
@@ -352,3 +349,40 @@
 /* ================= nawigacja 1:1 z wireframe'u ================= */
 
 
+
+/* ---------- role: wybór danych i pól w wierszu ---------- */
+.perms{--cols:minmax(164px,1fr) minmax(200px,1.1fr) 196px minmax(132px,0.9fr) 168px 44px}
+.ic-b:has(.perms){overflow-x:auto}
+.perms{min-width:920px}
+.fpick{width:100%;max-width:260px;height:28px;display:flex;align-items:center;gap:6px;padding:0 6px 0 10px;border:0;border-radius:8px;background:var(--surface);color:var(--t);cursor:pointer;text-align:left;
+  box-shadow:var(--sh-btn2);transition:box-shadow 150ms ease-out,background-color 150ms ease-out}
+.fpick .trunc{flex:1}
+.fpick .ico{color:#9A9A9A;flex:none;transition:rotate 150ms ease-out}
+.fpick[aria-expanded="true"] .ico{rotate:180deg}
+.fpick[aria-expanded="true"]{box-shadow:0 0 0 1px var(--focus),0 0 0 4px rgba(75,123,245,.14)}
+.fpick-n{flex:none;height:18px;padding:0 6px;border-radius:9px;background:var(--chip);color:var(--t-3);font-size:11px;line-height:18px}
+.fpick.empty{box-shadow:0 0 0 1px var(--danger),0 0 0 4px rgba(229,72,77,.1);color:var(--danger-fg)}
+.fpick:disabled{opacity:.45;cursor:default}
+.fpick:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media (hover:hover){.fpick:not(:disabled):hover{background:#FAFAFA}}
+.fmenu.fixed{position:fixed;z-index:70;right:auto}
+
+/* ---------- formularz IT pod linkiem „Problem z logowaniem?” ---------- */
+.auth-tile.ok{background:var(--ok-bg);color:var(--ok-fg)}
+.auth-net{display:flex;gap:8px;align-items:flex-start;margin-bottom:20px;color:var(--t-3);font-size:12px;line-height:18px}
+.auth-net .ico{color:var(--t-4);margin-top:2px}
+.auth-net b{color:var(--t);font-weight:500;white-space:nowrap}
+.issues{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:4px}
+.issues legend{padding:0;margin-bottom:6px}
+/* lista wyboru jak w Wise: wiersz 40 px, kropka radia po prawej */
+.issue{position:relative;height:40px;display:flex;align-items:center;gap:10px;padding:0 10px 0 8px;border-radius:8px;background:var(--surface);cursor:pointer;color:var(--t);
+  box-shadow:0 0 0 1px rgba(0,0,0,.08);transition:box-shadow 150ms ease-out,background-color 150ms ease-out}
+.issue input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.issue-i{width:24px;height:24px;flex:none;border-radius:7px;background:var(--chip);color:var(--t-3);display:flex;align-items:center;justify-content:center}
+.issue .rd{box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);border-radius:50%}
+.issue.on{background:var(--accent-wash);box-shadow:0 0 0 1px rgba(47,123,246,.4)}
+.issue.on .issue-i{background:#fff;color:var(--accent-text)}
+.issue.on .rd{box-shadow:inset 0 0 0 1px var(--accent)}
+.issue.on .rd::after{opacity:1;scale:1}
+.issue:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
+@media (hover:hover){.issue:not(.on):hover{background:#FAFAFA}}
