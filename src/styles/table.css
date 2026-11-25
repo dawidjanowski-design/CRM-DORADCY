@@ -73,13 +73,35 @@
 .fm-foot button:disabled{color:var(--t-off);cursor:default}
 @media (hover:hover){.fo:not(:disabled):hover{background:var(--chip)}.fm-foot button:not(:disabled):hover{background:var(--hover)}}
 
-/* akcje na zaznaczonych: zastępują pasek filtrów, ta sama wysokość */
-.bulk{flex:none;min-height:49px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 12px 10px 14px;border-bottom:1px solid var(--divider);background:var(--accent-wash);color:var(--accent-text)}
-.bulk b{font-weight:600}
-.bulk .btn-ghost{color:var(--accent-text)}
-.bulk .ibtn{color:var(--accent-text)}
-.bulk .bulk-del{color:var(--danger-fg)}
-@media (hover:hover){.bulk .btn-ghost:hover{background:var(--accent-wash-2)}}
+/* pływający pasek akcji masowych: ciemny materiał jak toast i podpowiedzi;
+   4 px wcięcia + przyciski 8 → promień 12 */
+.mtable{position:relative}
+/* miejsce pod tabelą, żeby ostatni wiersz dało się przewinąć ponad pasek */
+.mtable:has(.fbulk.open) .ttable{padding-bottom:56px}
+.fbulk{position:absolute;z-index:6;left:50%;bottom:56px;translate:-50% 0;display:flex;align-items:center;gap:2px;max-width:calc(100% - 24px);padding:4px;border-radius:12px;
+  background:#1A1A1A;color:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 8px 24px -6px rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.12);
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity 150ms ease-out,visibility 0s linear 150ms}
+.fbulk.open{opacity:1;visibility:visible;pointer-events:auto;transition:opacity 200ms ease-out,visibility 0s}
+@media (prefers-reduced-motion:no-preference){
+  .fbulk{translate:-50% 12px;scale:.98;transition:opacity 150ms ease-out,translate 150ms ease-out,scale 150ms ease-out,visibility 0s linear 150ms}
+  .fbulk.open{translate:-50% 0;scale:1;transition:opacity 200ms ease-out,translate 300ms var(--ease-out-soft),scale 300ms var(--ease-out-soft),visibility 0s}
+}
+.fbulk-n{padding:0 2px 0 10px;white-space:nowrap;color:rgba(255,255,255,.72)}
+.fbulk-n b{color:#fff;font-weight:600}
+.fbulk-x{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:transparent;color:rgba(255,255,255,.6);cursor:pointer;transition:background-color 150ms ease-out,color 150ms ease-out}
+.fbulk-sep{width:1px;height:16px;background:rgba(255,255,255,.16);margin:0 4px;flex:none}
+.fbulk-a{height:32px;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 8px;border:0;border-radius:8px;background:transparent;color:rgba(255,255,255,.88);white-space:nowrap;cursor:pointer;
+  transition-property:background-color,color,scale;transition-duration:150ms;transition-timing-function:ease-out}
+.fbulk-a .ico{color:rgba(255,255,255,.6)}
+.fbulk-a.del{color:#FF9A9D}.fbulk-a.del .ico{color:#FF9A9D}
+.fbulk-a:active,.fbulk-x:active{scale:.96}
+.fbulk-a:focus-visible,.fbulk-x:focus-visible{outline:2px solid #8EAEFF;outline-offset:0}
+@media (hover:hover){
+  .fbulk-a:hover,.fbulk-x:hover{background:rgba(255,255,255,.1);color:#fff}
+  .fbulk-a:hover .ico{color:#fff}
+  .fbulk-a.del:hover{background:rgba(229,72,77,.2);color:#FFB3B5}
+}
+@media (max-width:760px){.fbulk-a span,.fbulk-a{font-size:0;gap:0;padding:0 8px}.fbulk-a .ico{width:16px;height:16px}}
 
 /* siatka: jeden szablon kolumn dla nagłówka i wierszy */
 .tscroll{flex:1;min-height:0;overflow:auto}

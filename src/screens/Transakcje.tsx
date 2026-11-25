@@ -86,15 +86,6 @@ export function Transakcje() {
         <button className="btn btn-primary" ><Icon name="plus" size={14} />Utwórz</button>
       </header>
 
-      {sel.size > 0 ? (
-        <div className="bulk" role="toolbar" aria-label="Akcje na zaznaczonych">
-          <button className="ibtn sm" onClick={() => setSel(new Set())} aria-label="Odznacz wszystkie"><Icon name="x" size={14} /></button>
-          <span><b className="num">{sel.size}</b> zaznaczone</span>
-          <span className="vsep" />
-          {['Masowa aktualizacja', 'Połącz duplikaty', 'Eksportuj'].map(a => <button key={a} className="btn btn-ghost">{a}</button>)}
-          <button className="btn btn-ghost bulk-del"><Icon name="trash-2" size={14} />Usuń</button>
-        </div>
-      ) : (
         <div className="fbar" role="toolbar" aria-label="Filtry">
           {mine
             ? <button className="pill on chip-pill" onClick={() => setMine(false)} aria-pressed="true">Tylko moje elementy<Icon name="x" size={14} /></button>
@@ -110,7 +101,6 @@ export function Transakcje() {
           <span className="grow" />
           <ColumnPicker hidden={hidden} setHidden={setHidden} />
         </div>
-      )}
 
       <div className="tscroll">
         <div className="ttable" role="table" aria-label="Transakcje" aria-rowcount={total + 1}>
@@ -149,6 +139,8 @@ export function Transakcje() {
         </div>
       </div>
 
+      <BulkBar count={sel.size} onClear={() => setSel(new Set())} />
+
       <footer className="tfoot">
         <span className="num">{nf(from)}–{nf(to)} z {nf(total)}</span>
         <span className="grow" />
@@ -160,6 +152,32 @@ export function Transakcje() {
           <button className="ibtn sm" disabled={p >= pages - 1} onClick={() => setP(p + 1)} aria-label="Następna strona"><Icon name="chevron-right" size={14} /></button>
         </nav>
       </footer>
+    </div>
+  )
+}
+
+/* Pływający pasek akcji masowych: pojawia się nad stopką tabeli, gdy coś jest zaznaczone.
+   Esc odznacza wszystko. Liczba zostaje widoczna podczas chowania paska. */
+function BulkBar({ count, onClear }: { count: number; onClear: () => void }) {
+  const [shown, setShown] = useState(count)
+  useEffect(() => { if (count) setShown(count) }, [count])
+  useEffect(() => {
+    if (!count) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !document.querySelector('.fmenu.open, .dlg.open, .cmd.open')) onClear() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [count, onClear])
+  const open = count > 0
+  return (
+    <div className={`fbulk ${open ? 'open' : ''}`} role="toolbar" aria-label="Akcje na zaznaczonych" aria-hidden={!open} {...(open ? {} : { inert: '' })}>
+      <span className="fbulk-n"><b className="num">{shown}</b> {shown === 1 ? 'zaznaczona' : shown % 10 >= 2 && shown % 10 <= 4 && (shown % 100 < 12 || shown % 100 > 14) ? 'zaznaczone' : 'zaznaczonych'}</span>
+      <button className="fbulk-x" onClick={onClear} aria-label="Odznacz wszystkie (Esc)" title="Odznacz wszystkie · Esc"><Icon name="x" size={14} /></button>
+      <span className="fbulk-sep" />
+      <button className="fbulk-a"><Icon name="edit-3" size={14} />Masowa aktualizacja</button>
+      <button className="fbulk-a"><Icon name="git-merge" size={14} />Połącz duplikaty</button>
+      <button className="fbulk-a"><Icon name="download" size={14} />Eksportuj</button>
+      <span className="fbulk-sep" />
+      <button className="fbulk-a del"><Icon name="trash-2" size={14} />Usuń</button>
     </div>
   )
 }
