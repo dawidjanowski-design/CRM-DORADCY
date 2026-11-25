@@ -56,9 +56,9 @@ export function Login() {
   }
 
   return (
-    <div className="auth">
+    <div className="auth2">
       <div className="auth-col enter">
-        <div className="auth-brand"><MsMark size={32} /><span>MS OS</span></div>
+        <div className="auth-brand"><MsMark size={28} /><span>MS OS</span></div>
 
         {mode === 'wybor' && (
           <div className="auth-card">
@@ -134,9 +134,46 @@ export function Login() {
             <span className="dim">Bez VPN? Zadzwoń do IT: <span className="num">{IT_PHONE}</span></span>
           </div>
         )}
+        <p className="auth-foot">Dom Maklerski · system wewnętrzny dla pracowników</p>
       </div>
-
+      <BrandPanel />
     </div>
+  )
+}
+
+/* ---------- panel marki: grafit, miękkie światło, znak MS OS z modułami na orbitach ----------
+   Ikony to sekcje menu głównego; orbity obracają się bardzo wolno (statyczne przy ograniczonym ruchu). */
+const INNER = ['home', 'users', 'calendar', 'trending-up', 'box']
+const OUTER = ['volume-2', 'shield', 'file-text', 'briefcase', 'user-check', 'settings']
+
+function Orbit({ icons, r, cls }: { icons: string[]; r: number; cls: string }) {
+  return (
+    <div className={`orb ${cls}`} style={{ width: r * 2, height: r * 2 }}>
+      {icons.map((ic, i) => {
+        const a = (i / icons.length) * Math.PI * 2 - Math.PI / 2
+        return <span key={ic} className="orb-i" style={{ left: r + Math.cos(a) * r, top: r + Math.sin(a) * r }}><span className="orb-c"><Icon name={ic} size={16} /></span></span>
+      })}
+    </div>
+  )
+}
+
+function BrandPanel() {
+  return (
+    <aside className="auth-panel" aria-hidden="true">
+      <div className="ap-glow" />
+      <div className="ap-stage">
+        <div className="am">
+          <span className="am-ring r1" /><span className="am-ring r2" />
+          <Orbit icons={INNER} r={110} cls="o1" />
+          <Orbit icons={OUTER} r={190} cls="o2" />
+          <span className="am-core"><MsMark size={64} /></span>
+        </div>
+      </div>
+      <div className="ap-copy">
+        <h2>Wszystkie moduły pod jednym logowaniem</h2>
+        <p>Klient, sprzedaż, emisje, compliance i kadry. Widzisz te, do których masz dostęp.</p>
+      </div>
+    </aside>
   )
 }
 

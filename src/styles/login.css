@@ -1,0 +1,56 @@
+/* ================= logowanie, wariant „Nowy”: split screen =================
+   lewa kolumna: formularz bez ramki karty, logo w rogu; prawa: grafitowy panel marki
+   odsunięty 8 px od krawędzi, promień 16 (jak drawer) */
+.auth2{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);background:var(--surface)}
+.auth2 .auth-col{position:relative;width:100%;max-width:440px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:24px;padding:96px 40px 72px}
+.auth2 .auth-brand{position:absolute;top:28px;left:40px;justify-content:flex-start;font-size:14px}
+.auth2 .auth-card{background:transparent;border:0;box-shadow:none;padding:0}
+.auth2 .auth-h{font-size:24px;line-height:30px;letter-spacing:-.015em;margin-bottom:24px}
+.auth2 .auth-center{align-items:flex-start;text-align:left}
+.auth2 .auth-help{align-items:flex-start}
+.auth2 .auth-note{margin:0 0 20px}
+.auth2 .auth-back{margin:0 0 16px -10px}
+.auth-foot{position:absolute;left:40px;bottom:28px;margin:0;font-size:12px;color:var(--t-5)}
+
+/* ---------- panel marki ---------- */
+.auth-panel{position:relative;isolation:isolate;margin:8px;border-radius:16px;overflow:hidden;background:#131316;color:#fff;display:flex;flex-direction:column;padding:40px 40px 44px;min-height:calc(100vh - 16px)}
+/* miękkie światło: dwa rozmyte gradienty, akcent marki + fiolet */
+.ap-glow{position:absolute;inset:-15%;z-index:-1;filter:blur(24px);
+  background:radial-gradient(45% 40% at 72% 30%,rgba(47,123,246,.34),transparent 70%),radial-gradient(40% 35% at 18% 78%,rgba(139,92,246,.22),transparent 70%),radial-gradient(30% 30% at 90% 90%,rgba(31,179,74,.10),transparent 70%)}
+/* ziarno, żeby gradient nie był „plastikowy” */
+.auth-panel::after{content:"";position:absolute;inset:0;z-index:-1;opacity:.07;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.ap-stage{flex:1;position:relative;display:grid;place-items:center;min-height:320px}
+.ap-copy{max-width:46ch}
+.ap-copy h2{font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em;color:#fff}
+.ap-copy p{margin-top:8px;font-size:14px;line-height:21px;color:rgba(255,255,255,.62)}
+
+/* wejście tekstu: jednorazowe */
+@media (prefers-reduced-motion:no-preference){.ap-copy{animation:enter 500ms ease-out 240ms both}}
+
+@media (max-width:960px){
+  .auth2{grid-template-columns:1fr}
+  .auth-panel{display:none}
+}
+@media (max-width:640px){
+  .auth2 .auth-col{padding:88px 20px 64px}
+  .auth2 .auth-brand,.auth-foot{left:20px}
+}
+
+/* ---------- ilustracja: znak MS OS z modułami na orbitach ---------- */
+.am{position:relative;width:400px;height:400px;max-width:100%}
+.am>*{position:absolute;left:50%;top:50%;translate:-50% -50%}
+.am-ring{border-radius:50%;border:1px solid rgba(255,255,255,.08)}
+.am-ring.r1{width:220px;height:220px}
+.am-ring.r2{width:380px;height:380px;border-style:dashed;border-color:rgba(255,255,255,.07)}
+.orb{border-radius:50%}
+.orb-i{position:absolute;translate:-50% -50%}
+.orb-c{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:12px;color:rgba(255,255,255,.85);
+  background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 8px 20px -8px rgba(0,0,0,.5);backdrop-filter:blur(6px)}
+.am-core .ms-mark{background-color:#fff;color:#131316;border-radius:18px!important;
+  box-shadow:0 0 0 10px rgba(255,255,255,.04),0 0 0 22px rgba(255,255,255,.025),0 0 80px rgba(91,141,247,.45)}
+@media (prefers-reduced-motion:no-preference){
+  .orb.o1{animation:spin 90s linear infinite}.orb.o1 .orb-c{animation:spin 90s linear infinite reverse}
+  .orb.o2{animation:spin 140s linear infinite reverse}.orb.o2 .orb-c{animation:spin 140s linear infinite}
+  .am{animation:fade 600ms ease-out both}
+}
