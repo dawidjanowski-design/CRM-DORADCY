@@ -386,3 +386,20 @@
 .issue.on .rd::after{opacity:1;scale:1}
 .issue:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
 @media (hover:hover){.issue:not(.on):hover{background:#FAFAFA}}
+
+/* ---------- formularz wniosku: przełączniki na szerokość treści ---------- */
+.field>.vsw{align-self:flex-start}
+.rq-two{align-items:start}
+.rq-two .vsw{height:32px;align-items:stretch}
+.rq-two .vsw button{height:28px}
+.select:has(option[value=""]:checked){color:var(--t-5)}
+
+/* ---------- tabele w kartach: oddech między nagłówkiem a treścią ----------
+   komórka dwulinijkowa: 12 px góra/dół, 2 px między nazwą a opisem (zamiast odstępu 8 z .tr>*) */
+.tbl .tr>.two{gap:0;padding-top:12px;padding-bottom:12px}
+.tbl .tr>.two .meta{margin-top:2px}
+.tbl .th{min-height:40px}
+.r .two{gap:0}
+.r .two .meta{margin-top:2px}
+.plist .r .two{padding:8px 0}
+.preq-i .two{padding:10px 0}
