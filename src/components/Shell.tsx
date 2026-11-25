@@ -30,44 +30,80 @@ export function Shell({ children }: { children: ReactNode }) {
     else { setSec(s.id); setOpen(true) }
   }
 
+  const [tip, setTip] = useState<{ label: string; top: number } | null>(null)
+  const [folded, setFolded] = useState<Set<string>>(() => { try { return new Set(JSON.parse(localStorage.getItem('msos.nav.folded') ?? '[]')) } catch { return new Set() } })
+  const fold = (key: string) => setFolded(f => {
+    const n = new Set(f); if (n.has(key)) n.delete(key); else n.add(key)
+    try { localStorage.setItem('msos.nav.folded', JSON.stringify([...n])) } catch { /* tryb prywatny */ }
+    return n
+  })
+  const showTip = (el: HTMLElement, label: string) => { const r = el.getBoundingClientRect(); setTip({ label, top: r.top + r.height / 2 }) }
+  // strzałki góra/dół przechodzą między ikonami paska, w kolejności wizualnej
+  const railKeys = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+    const btns = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('.l1'))
+    const i = btns.indexOf(document.activeElement as HTMLElement)
+    if (i < 0) return
+    e.preventDefault()
+    btns[(i + (e.key === 'ArrowDown' ? 1 : -1) + btns.length) % btns.length].focus()
+  }
+  const rail = (s: NavSection) => (
+    <RailBtn key={s.id} s={s} active={s.id === current?.id} open={open} onClick={() => pick(s)}
+      onTip={(el) => showTip(el, s.label)} onTipOff={() => setTip(null)} />
+  )
+
   return (
     <div className={`shell ${open && current ? '' : 'panel-closed'}`}>
-      <nav className="rail" aria-label="Nawigacja poziom 1">
-        <a className="rail-logo" href="#/strona-glowna" aria-label="MS OS, strona główna"><MsMark size={28} /></a>
-        <div className="rail-list">{top.map(s => <RailBtn key={s.id} s={s} active={s.id === current?.id} onClick={() => pick(s)} />)}</div>
+      <nav className="rail" aria-label="Moduły" onKeyDown={railKeys}>
+        <a className="rail-logo" href="#/strona-glowna" aria-label="MS OS, strona główna"
+          onMouseEnter={e => showTip(e.currentTarget, 'Strona Główna')} onMouseLeave={() => setTip(null)}><MsMark size={28} /></a>
+        <div className="rail-list">{top.map(rail)}</div>
         {bottom.length > 0 && <span className="rail-sep" />}
-        <div className="rail-list">{bottom.map(s => <RailBtn key={s.id} s={s} active={s.id === current?.id} onClick={() => pick(s)} />)}</div>
+        <div className="rail-list">{bottom.map(rail)}</div>
         <span className="grow" />
         <UserMenu />
       </nav>
+      {tip && <span className="rail-tip" role="tooltip" style={{ top: tip.top }}>{tip.label}</span>}
 
       {current && (
-        <aside className="panel" aria-label="Nawigacja poziom 2" aria-hidden={!open} {...(open ? {} : { inert: '' })}>
+        <aside className="panel" aria-label={current.label} aria-hidden={!open} {...(open ? {} : { inert: '' })}>
           <div className="panel-head">
+            <span className="panel-ico"><Icon name={current.icon} size={14} /></span>
             <h2>{current.label}</h2>
             <span className="grow" />
-            <button className="ibtn" onClick={() => setOpen(false)} aria-label="Zwiń panel" title="Zwiń panel"><Icon name="chevron-left" /></button>
+            <button className="ibtn" onClick={() => setOpen(false)} aria-label="Zwiń panel" title="Zwiń panel"><Icon name="sidebar" /></button>
           </div>
           <div className="panel-body">
-            {current.groups.map((g, gi) => (
-              <div key={gi} className="pgrp">
-                {g.title && <div className="plabel">{g.title}</div>}
-                <ul>
-                  {g.items.map(it => {
-                    const r = itemRoute(current, it)
-                    const on = route.path === r
-                    return (
-                      <li key={it.label}>
-                        <a className={`nav ${on ? 'is-on' : ''}`} href={`#/${r}`} aria-current={on ? 'page' : undefined}
-                          onClick={() => { if (matchMedia(NARROW).matches) setOpen(false) }}>
-                          <span className="trunc">{it.label}</span>
-                        </a>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            ))}
+            {current.groups.map((g, gi) => {
+              const key = `${current.id}/${gi}`
+              const shut = !!g.title && folded.has(key)
+              return (
+                <div key={key} className="pgrp">
+                  {g.title && (
+                    <button className="plabel" aria-expanded={!shut} aria-controls={`pg-${key}`} onClick={() => fold(key)}>
+                      <span className="trunc">{g.title}</span>
+                      <Icon name="chevron-down" size={12} className="plabel-chev" />
+                    </button>
+                  )}
+                  <div className={`pgrp-exp ${shut ? '' : 'open'}`} id={`pg-${key}`}>
+                    <ul className="pgrp-in" {...(shut ? { inert: '' } : {})}>
+                      {g.items.map(it => {
+                        const r = itemRoute(current, it)
+                        const on = route.path === r
+                        return (
+                          <li key={it.label}>
+                            <a className={`nav ${on ? 'is-on' : ''}`} href={`#/${r}`} aria-current={on ? 'page' : undefined}
+                              onClick={() => { if (matchMedia(NARROW).matches) setOpen(false) }}>
+                              <span className="trunc">{it.label}</span>
+                            </a>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </aside>
       )}
@@ -75,7 +111,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
       <div className="col">
         <header className="topbar">
-          <button className="ibtn tb-menu" onClick={() => setOpen(o => !o)} aria-label="Pokaż panel modułu"><Icon name="sidebar" /></button>
+          <button className={`ibtn tb-menu ${open ? '' : 'show'}`} onClick={() => setOpen(o => !o)} aria-label="Pokaż panel modułu" aria-expanded={open} title="Pokaż panel"><Icon name="sidebar" /></button>
           <button className="search" onClick={() => setCmd(true)} aria-haspopup="dialog" aria-keyshortcuts="Meta+K Control+K">
             <Icon name="search" size={14} /><span className="trunc">Szukaj…</span><span className="kbd">⌘K</span>
           </button>
@@ -89,10 +125,14 @@ export function Shell({ children }: { children: ReactNode }) {
   )
 }
 
-function RailBtn({ s, active, onClick }: { s: NavSection; active: boolean; onClick: () => void }) {
+/* Ikona sekcji: sama ikona + podpowiedź z nazwą (najazd i fokus) */
+function RailBtn({ s, active, open, onClick, onTip, onTipOff }: {
+  s: NavSection; active: boolean; open: boolean; onClick: () => void; onTip: (el: HTMLElement) => void; onTipOff: () => void
+}) {
   return (
-    <button className={`l1 ${active ? 'is-on' : ''}`} onClick={onClick} aria-pressed={active} aria-label={s.label} title={s.label}>
-      <Icon name={s.icon} size={18} /><span>{s.label}</span>
+    <button className={`l1 ${active ? 'is-on' : ''} ${active && !open ? 'folded' : ''}`} onClick={onClick} aria-pressed={active} aria-label={s.label}
+      onMouseEnter={e => onTip(e.currentTarget)} onMouseLeave={onTipOff} onFocus={e => { if (e.currentTarget.matches(':focus-visible')) onTip(e.currentTarget) }} onBlur={onTipOff}>
+      <Icon name={s.icon} size={18} />
     </button>
   )
 }

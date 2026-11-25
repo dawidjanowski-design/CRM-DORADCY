@@ -51,6 +51,6 @@
 
   --ease-out-soft:cubic-bezier(0.2,0,0,1);
 
-  --rail:80px;
+  --rail:60px;
   --panel:240px;
 }

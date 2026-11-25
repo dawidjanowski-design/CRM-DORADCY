@@ -1,17 +1,23 @@
-import feather from 'feather-icons'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { useApp } from '../store'
 export type Tone = 'ok' | 'warn' | 'danger' | 'info' | 'plain'
 
-/* ---------- ikony Feather: kreska ~1,75 px obok tekstu 13/500 ---------- */
-export function Icon({ name, size = 16, className }: { name: string; size?: number; className?: string }) {
+/* ---------- ikony Feather: pliki SVG z feather-main (src/assets/feather, licencja MIT) ----------
+   Kreska skalowana tak, żeby po wyrenderowaniu miała ~1,75 px obok tekstu 13/500. */
+const FEATHER = import.meta.glob<string>('../assets/feather/*.svg', { query: '?raw', import: 'default', eager: true })
+const SVG: Record<string, string> = Object.fromEntries(
+  Object.entries(FEATHER).map(([path, svg]) => [path.split('/').pop()!.replace('.svg', ''), svg]))
+
+export function Icon({ name, size = 16, className, stroke = 1.75 }: { name: string; size?: number; className?: string; stroke?: number }) {
   const html = useMemo(() => {
-    const ic = (feather.icons as Record<string, { toSvg: (a: Record<string, string | number>) => string }>)[name]
-    if (!ic) { console.warn('Brak ikony', name); return '' }
-    return ic.toSvg({ width: size, height: size, 'stroke-width': Math.round(1.75 * 24 / size * 100) / 100, 'aria-hidden': 'true', class: 'ico' })
-  }, [name, size])
-  return <span className={className} style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: html }} />
+    const src = SVG[name]
+    if (!src) { console.warn('Brak ikony Feather:', name); return '' }
+    return src
+      .replace('width="24" height="24"', `width="${size}" height="${size}" aria-hidden="true" focusable="false" class="ico${className ? ' ' + className : ''}"`)
+      .replace(/stroke-width="[\d.]+"/, `stroke-width="${Math.round(stroke * 24 / size * 100) / 100}"`)
+  }, [name, size, className, stroke])
+  return <span style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: html }} />
 }
 
 export function MicrosoftMark({ size = 16 }: { size?: number }) {
