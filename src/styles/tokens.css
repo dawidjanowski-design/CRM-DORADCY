@@ -1,0 +1,56 @@
+/* Tokeny ze stylistyki Fieldnote (CRM-DORADCY/src/page.html + design-system.md).
+   Nowe wartości dobieramy ze skali, nie wpisujemy ich w komponentach. */
+:root{
+  /* tekst: od najciemniejszego do najjaśniejszego, każdy stopień ma swoją rolę */
+  --t-strong:#222;   /* tytuły, wartości, tekst w polach */
+  --t:#333;          /* treść, komórki, aktywna nawigacja */
+  --t-2:#555;        /* tekst chipów, treść drugorzędna */
+  --t-3:#777;        /* nieaktywna nawigacja, etykiety paska narzędzi */
+  --t-4:#8A8A8A;     /* meta, ikony w spoczynku */
+  --t-5:#A3A3A3;     /* etykiety sekcji, placeholdery */
+  --t-off:#C4C4C4;   /* wyłączone */
+
+  /* powierzchnie */
+  --app-bg:#F9F9F9;
+  --surface:#FFFFFF;
+  --sunken:#F7F7F8;
+  --chip:#F4F4F5;
+  --hover:#F1F1F1;
+  --selected:#EDEDED;
+  --row-hover:#FAFAFB;
+  --divider:#EEEFF2;
+  --inset-bg:#F6F6F7;
+  --inset-ring:#ECECEF;
+  --count-bg:#EAEAED;
+
+  /* akcent tylko dla stanu: zaznaczenie, focus, aktywne filtry, nieprzeczytane */
+  --accent:#2F7BF6;
+  --focus:#4B7BF5;
+  --accent-text:#1D4FB8;
+  --accent-wash:#F3F7FF;
+  --accent-wash-2:#EBF2FF;
+
+  /* semantyka */
+  --ok:#1FB34A;     --ok-bg:#E5F6E9;     --ok-fg:#12702C;
+  --warn:#E08A00;   --warn-bg:#FFF4E0;   --warn-fg:#8A5300;
+  --danger:#E5484D; --danger-bg:#FDECEC; --danger-fg:#B4232A;
+  --info-bg:#EEF2FE; --info-fg:#2A4BA0;
+  --violet:#8B5CF6;
+
+  --primary:#1A1A1A; --primary-hover:#000;
+
+  /* elewacja: pierścienie + miękkie cienie, nigdy twarde obramowania */
+  --sh-card:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04),0 4px 12px -4px rgba(0,0,0,.04);
+  --sh-inner:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-pop:0 0 0 1px rgba(0,0,0,.06),0 1px 2px -1px rgba(0,0,0,.06),0 4px 8px -2px rgba(0,0,0,.06),0 16px 32px -8px rgba(0,0,0,.12);
+  --sh-modal:0 0 0 1px rgba(0,0,0,.06),0 1px 2px -1px rgba(0,0,0,.06),0 12px 24px -6px rgba(0,0,0,.10),0 32px 64px -16px rgba(0,0,0,.20);
+  --sh-drawer:0 0 0 1px rgba(0,0,0,.06),0 1px 2px -1px rgba(0,0,0,.06),0 8px 24px -4px rgba(0,0,0,.08),0 24px 48px -12px rgba(0,0,0,.12);
+  --sh-btn2:0 0 0 1px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh-primary:inset 0 1px 0 rgba(255,255,255,.12),0 1px 2px rgba(0,0,0,.12);
+  --scrim:rgba(17,17,17,.14);
+
+  --ease-out-soft:cubic-bezier(0.2,0,0,1);
+
+  --rail:80px;
+  --panel:240px;
+}
