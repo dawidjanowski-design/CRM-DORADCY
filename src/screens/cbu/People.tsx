@@ -2,13 +2,15 @@ import { useMemo, useState } from 'react'
 import { go, useApp } from '../../store'
 import { itemState, person as personOf, STATE_LABEL, type Access } from '../../data/cbu'
 import { Avatar, Dialog, Empty, Icon, InsetCard, Status } from '../../components/ui'
-import { scopePeople } from './Cbu'
+import { scopePeople, useCbu } from './Cbu'
 
 const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l')
 
 export function People({ onRequest }: { onRequest: (person: string) => void }) {
   const { user: persona, route, accesses } = useApp()
-  const people = scopePeople()
+  const { self, base } = useCbu()
+  // doradca widzi tylko siebie; ekran IT — pełną ewidencję
+  const people = self ? scopePeople().filter(p => p.name === persona.name) : scopePeople()
   const [q, setQ] = useState('')
   const selected = people.find(p => p.name === route.params.get('o'))?.name ?? (people.find(p => p.name === persona.name) ? persona.name : people[0]?.name)
   const list = people.filter(p => !q || fold(p.name + ' ' + p.unit).includes(fold(q)))
@@ -25,7 +27,7 @@ export function People({ onRequest }: { onRequest: (person: string) => void }) {
               const n = accesses.filter(a => a.person === p.name).length
               return (
                 <button key={p.name} className={`r ${p.name === selected ? 'sel' : ''}`} role="option" aria-selected={p.name === selected}
-                  onClick={() => go('uprawnienia/osoby?o=' + encodeURIComponent(p.name))}>
+                  onClick={() => go(`${base}/osoby?o=` + encodeURIComponent(p.name))}>
                   <Avatar initials={p.initials} color={p.color} size={24} />
                   <span className="two"><span className="trunc">{p.name}{p.name === persona.name && <span className="dim"> · Ty</span>}</span><span className="meta trunc">{p.unit}</span></span>
                   <span className="when num">{n}</span>
@@ -43,9 +45,10 @@ export function People({ onRequest }: { onRequest: (person: string) => void }) {
 
 function PersonDetail({ name, onRequest }: { name: string; onRequest: (p: string) => void }) {
   const { user: persona, accesses, requests, revoke, notify, execute } = useApp()
+  const { self, base } = useCbu()
   const p = personOf(name)!
   const rows = accesses.filter(a => a.person === name)
-  const manage = true
+  const manage = !self   // odbiera uprawniona osoba, nie sam pracownik
   const [open, setOpen] = useState<string | null>(null)
   const [confirm, setConfirm] = useState<Access | null>(null)
   const pending = useMemo(() => requests.filter(r => r.person === name && r.items.some(i => {
@@ -74,7 +77,8 @@ function PersonDetail({ name, onRequest }: { name: string; onRequest: (p: string
           <p className="muted trunc" style={{ marginTop: 2 }}>{p.title} · {p.unit}{p.afi && ' · AFI'}</p>
         </div>
         <span className="grow" />
-        <button className="btn btn-secondary" onClick={() => onRequest(name)}><Icon name="plus" size={14} />{name === persona.name ? 'Poproś o dostęp' : 'Wniosek dla tej osoby'}</button>
+        {/* u doradcy „Poproś o dostęp” jest już w nagłówku strony; tu tylko na ekranie IT (wniosek z wybraną osobą) */}
+        {!self && <button className="btn btn-secondary" onClick={() => onRequest(name)}><Icon name="plus" size={14} />{name === persona.name ? 'Poproś o dostęp' : 'Wniosek dla tej osoby'}</button>}
       </div>
 
       <InsetCard title="Aktualne dostępy" icon="unlock" count={rows.length} id="acc-h">
@@ -101,7 +105,7 @@ function PersonDetail({ name, onRequest }: { name: string; onRequest: (p: string
                           <div key={i} className="src">
                             <span className="src-i"><Icon name={s.kind === 'rola' ? 'users' : 'user'} size={14} /></span>
                             <span className="two"><span>{s.kind === 'rola' ? `Rola „${s.name}”` : s.name}</span>
-                              <span className="meta">od {s.since} · {s.kind === 'rola' ? 'przydzielił(a)' : 'zatwierdzili'}: {s.by}{s.request && <> · <a className="link" href={`#/uprawnienia/wnioski?w=${s.request}`} tabIndex={isOpen ? 0 : -1}>{s.request}</a></>}</span></span>
+                              <span className="meta">od {s.since} · {s.kind === 'rola' ? 'przydzielił(a)' : 'zatwierdzili'}: {s.by}{s.request && <> · <a className="link" href={`#/${base}/wnioski?w=${s.request}`} tabIndex={isOpen ? 0 : -1}>{s.request}</a></>}</span></span>
                             {s.kind === 'nadanie' && manage && <button className="btn btn-danger btn-sm" tabIndex={isOpen ? 0 : -1} onClick={() => setConfirm(a)}>Odbierz</button>}
                             {s.kind === 'rola' && <span className="dim" style={{ fontSize: 12 }}>Zmiana przez HR</span>}
                           </div>
@@ -119,7 +123,7 @@ function PersonDetail({ name, onRequest }: { name: string; onRequest: (p: string
       <InsetCard title="Wnioski w toku" icon="clock" count={pending.length}>
         {pending.length === 0 ? <Empty icon="check" title="Nic nie czeka" hint="Nowe wnioski tej osoby pojawią się tutaj." /> : pending.map(r => (
           <div key={r.id} className="preq">
-            <div className="preq-h"><a className="link num" href={`#/uprawnienia/wnioski?w=${r.id}`}>{r.id}</a><span className="dim">złożony {r.createdAt.replace(' 2026', '')}{r.author !== r.person && ` przez ${r.author}`}</span></div>
+            <div className="preq-h"><a className="link num" href={`#/${base}/wnioski?w=${r.id}`}>{r.id}</a><span className="dim">złożony {r.createdAt.replace(' 2026', '')}{r.author !== r.person && ` przez ${r.author}`}</span></div>
             {r.items.map(it => {
               const st = itemState(it); const lab = STATE_LABEL(st)
               return (
@@ -129,7 +133,7 @@ function PersonDetail({ name, onRequest }: { name: string; onRequest: (p: string
                     <span className="meta trunc">{it.level} · {it.scope} · {it.system}</span></span>
                   {st.s === 'czeka' && <span className="muted trunc" style={{ fontSize: 12 }}>{st.step.who}</span>}
                   <Status tone={lab.tone}>{lab.label}</Status>
-                  {st.s === 'do_wykonania' && <button className="btn btn-secondary btn-sm" onClick={() => { execute(r.id, it.id); notify(`Potwierdzono wykonanie: ${it.what}`) }}>Potwierdź wykonanie</button>}
+                  {st.s === 'do_wykonania' && !self && <button className="btn btn-secondary btn-sm" onClick={() => { execute(r.id, it.id); notify(`Potwierdzono wykonanie: ${it.what}`) }}>Potwierdź wykonanie</button>}
                 </div>
               )
             })}

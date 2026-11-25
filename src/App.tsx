@@ -12,7 +12,9 @@ function Screen() {
   const { route } = useApp()
   const [a, b] = route.path.split('/')
   if (a === 'pulpit') return <Home />
-  if (a === 'uprawnienia') return <Cbu view={(['osoby', 'role', 'wnioski'].includes(b) ? b : 'osoby') as View} />
+  // ekrany IT (pod modułami CBU w sekcji IT) i widok pracownika „Moje dostępy”
+  if (a === 'uprawnienia') return <Cbu key="it" view={(['osoby', 'role', 'zasoby', 'wnioski'].includes(b) ? b : 'osoby') as View} />
+  if (a === 'moje-dostepy') return <Cbu key="self" self view={b === 'wnioski' ? 'wnioski' : 'osoby'} />
   if (a === 'profil') return <Profil />
   if (a === 'transakcje') return <Transakcje />
   return <ModulePage path={route.path} />

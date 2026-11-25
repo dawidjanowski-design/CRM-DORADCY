@@ -58,8 +58,8 @@ export const NAV_BOTTOM: NavSection[] = [
     { title: 'Rozwój', items: [i('Szkolenia', 'Kadry'), i('Szkolenia wstępne', 'Kadry'), i('Szkolenia wewnętrzne', 'Kadry'), i('Osoby szkolące', 'Kadry'), i('Rejestr licencji zawodowych', 'Kadry')] },
   ] },
   { id: 'it', label: 'IT', icon: 'settings', role: true, groups: [
-    { items: [i('Uprawnienia', 'IT', 'uprawnienia/osoby'), i('Zgłoszenia IT', 'IT'), i('Rejestr Incydentów ICT', 'IT'), i('Parametry Systemowe', 'IT'), i('Workflow', 'IT')] },
-    { title: 'CBU', items: [i('CBU - Konta', 'IT'), i('CBU - Profile dostępu', 'IT'), i('CBU - Role', 'IT'), i('CBU - Systemy', 'IT'), i('CBU - Uprawnienia atomowe', 'IT'), i('CBU - Zasoby', 'IT')] },
+    { items: [i('Uprawnienia', 'IT', 'uprawnienia/wnioski'), i('Zgłoszenia IT', 'IT'), i('Rejestr Incydentów ICT', 'IT'), i('Parametry Systemowe', 'IT'), i('Workflow', 'IT')] },
+    { title: 'CBU', items: [i('CBU - Konta', 'IT', 'uprawnienia/osoby'), i('CBU - Profile dostępu', 'IT'), i('CBU - Role', 'IT', 'uprawnienia/role'), i('CBU - Systemy', 'IT'), i('CBU - Uprawnienia atomowe', 'IT'), i('CBU - Zasoby', 'IT', 'uprawnienia/zasoby')] },
   ] },
 ]
 

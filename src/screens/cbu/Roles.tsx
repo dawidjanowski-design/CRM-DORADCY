@@ -3,9 +3,9 @@ import { useApp } from '../../store'
 import { catalog, fieldsLabel, person as personOf, PREDEFINED, RESOURCES, SCOPES, type Level, type Perm, type RoleDef } from '../../data/cbu'
 import { Avatar, Dialog, Icon, InsetCard, menuKeys, Segmented, useDismiss } from '../../components/ui'
 
-export function Roles() {
+export function Roles({ initialTab = 'role' }: { initialTab?: 'role' | 'zasoby' }) {
   const { roles } = useApp()
-  const [tab, setTab] = useState<'role' | 'zasoby'>('role')
+  const [tab, setTab] = useState<'role' | 'zasoby'>(initialTab)
   const mine = roles
   const res = RESOURCES
   const [sel, setSel] = useState(mine[0]?.name)

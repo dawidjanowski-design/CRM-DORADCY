@@ -174,7 +174,7 @@ function UserMenu() {
 const RECENT = [
   { label: 'Transakcje', meta: 'Sprzedaż', to: 'transakcje' },
   { label: 'Klienci', meta: 'Klient', to: 'm/klienci/klienci' },
-  { label: 'Uprawnienia', meta: 'IT', to: 'uprawnienia/osoby' },
+  { label: 'Moje dostępy', meta: 'Profil', to: 'moje-dostepy' },
 ]
 function Recent() {
   const [open, setOpen] = useState(false)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { go, routeFor, useApp } from '../../store'
 import { itemState, PEOPLE, PREDEFINED, RESOURCES, ROLES, SCOPES, type ReqItem, type Level } from '../../data/cbu'
 import { Drawer, Icon, PageHead, Segmented } from '../../components/ui'
@@ -6,9 +6,14 @@ import { People } from './People'
 import { Roles } from './Roles'
 import { Requests } from './Requests'
 
-export type View = 'osoby' | 'role' | 'wnioski'
+export type View = 'osoby' | 'role' | 'zasoby' | 'wnioski'
 
-// Bez widoków per rola: jeden pełny widok ewidencji dla wszystkich osób.
+/* Dwie perspektywy tych samych ekranów:
+   · self: zalogowany pracownik (doradca) widzi własne dostępy i wnioski, prosi o pojedyncze uprawnienie;
+   · admin: ekrany IT (ewidencja, role i zasoby, decyzje i wykonanie) pod modułami CBU w sekcji IT. */
+export const CbuCtx = createContext<{ self: boolean; base: string }>({ self: false, base: 'uprawnienia' })
+export const useCbu = () => useContext(CbuCtx)
+
 export const scopePeople = () => PEOPLE
 
 /* Wnioski z pozycją czekającą na decyzję albo na wykonanie przez IT */
@@ -16,29 +21,38 @@ export function pending(requests: ReturnType<typeof useApp>['requests']) {
   return requests.filter(r => r.items.some(it => { const s = itemState(it).s; return s === 'czeka' || s === 'do_wykonania' }))
 }
 
-export function Cbu({ view }: { view: View }) {
-  const { requests } = useApp()
+export function Cbu({ view, self = false }: { view: View; self?: boolean }) {
+  const { requests, user } = useApp()
   const [drawer, setDrawer] = useState<{ person?: string } | null>(null)
-  const mine = pending(requests).length
-  const v: View = view
+  const base = self ? 'moje-dostepy' : 'uprawnienia'
+  const open = pending(self ? requests.filter(r => r.person === user.name || r.author === user.name) : requests).length
+  const v: View = self && (view === 'role' || view === 'zasoby') ? 'osoby' : view
+  const tab = v === 'zasoby' ? 'role' : v
 
   return (
-    <>
-      <PageHead icon="key" title="Uprawnienia" meta="Centralna Baza Uprawnień">
-        <button className="btn btn-primary" onClick={() => setDrawer({})}><Icon name="plus" size={14} />Nowy wniosek</button>
-      </PageHead>
+    <CbuCtx.Provider value={{ self, base }}>
+      {self
+        ? <PageHead icon="unlock" title="Moje dostępy" meta="Centralna Baza Uprawnień">
+            <button className="btn btn-primary" onClick={() => setDrawer({})}><Icon name="plus" size={14} />Poproś o dostęp</button>
+          </PageHead>
+        : <PageHead icon="key" title="Uprawnienia" meta="Centralna Baza Uprawnień">
+            <button className="btn btn-primary" onClick={() => setDrawer({})}><Icon name="plus" size={14} />Nowy wniosek</button>
+          </PageHead>}
       <div className="fbar">
-        <Segmented label="Widok" value={v} onChange={x => go('uprawnienia/' + x)} options={[
+        <Segmented label="Widok" value={tab} onChange={x => go(x === 'osoby' && self ? base : `${base}/${x}`)} options={self ? [
+          { value: 'osoby', label: 'Dostępy', icon: 'unlock' },
+          { value: 'wnioski', label: <>Moje wnioski{open > 0 && <span className="count">{open}</span>}</>, icon: 'file-text' },
+        ] : [
           { value: 'osoby', label: 'Osoby i dostępy', icon: 'users' },
           { value: 'role', label: 'Role i zasoby', icon: 'layers' },
-          { value: 'wnioski', label: <>Wnioski i decyzje{mine > 0 && <span className="count">{mine}</span>}</>, icon: 'check-square' },
+          { value: 'wnioski', label: <>Wnioski i decyzje{open > 0 && <span className="count">{open}</span>}</>, icon: 'check-square' },
         ]} />
       </div>
       {v === 'osoby' && <People onRequest={person => setDrawer({ person })} />}
-      {v === 'role' && <Roles />}
+      {(v === 'role' || v === 'zasoby') && <Roles key={v} initialTab={v === 'zasoby' ? 'zasoby' : 'role'} />}
       {v === 'wnioski' && <Requests />}
       <RequestDrawer open={!!drawer} person={drawer?.person} onClose={() => setDrawer(null)} />
-    </>
+    </CbuCtx.Provider>
   )
 }
 
@@ -51,6 +65,7 @@ const needsCompliance = (name: string, level: string) => level === 'Edycja' || /
 
 function RequestDrawer({ open, person, onClose }: { open: boolean; person?: string; onClose: () => void }) {
   const { user, submit, notify } = useApp()
+  const { self, base } = useCbu()
   const people = scopePeople()
   const [who, setWho] = useState(person ?? user.name)
   const [op, setOp] = useState<'nadanie' | 'odebranie'>('nadanie')
@@ -66,8 +81,9 @@ function RequestDrawer({ open, person, onClose }: { open: boolean; person?: stri
     if (open) { setWho(person ?? user.name); setOp('nadanie'); setKind('uprawnienie'); setItems([{ key: 1, what: '', level: 'Odczyt', scope: 'Własni klienci' }]); setReason(''); setTried(false) }
   }
 
-  const canRevoke = true   // odebranie przez uprawnioną osobę przechodzi od razu do wykonania
-  const hr = true          // przydzielenie całej roli inicjuje HR
+  // pracownik prosi tylko o pojedyncze uprawnienie dla siebie; odebranie i całą rolę obsługują uprawnione osoby i HR
+  const canRevoke = !self  // odebranie przez uprawnioną osobę przechodzi od razu do wykonania
+  const hr = !self         // przydzielenie całej roli inicjuje HR
   const upd = (k: number, patch: Partial<Draft>) => setItems(xs => xs.map(x => x.key === k ? { ...x, ...patch } : x))
   const valid = (kind === 'rola' || items.every(i => i.what)) && reason.trim().length >= 10
 
@@ -86,31 +102,37 @@ function RequestDrawer({ open, person, onClose }: { open: boolean; person?: stri
       })
     const id = submit({ person: who, reason: reason.trim(), items: reqItems })
     onClose()
-    notify(op === 'odebranie' && canRevoke ? `Odebranie ${id} przekazane do wykonania` : `Złożono wniosek ${id}`, { label: 'Otwórz', run: () => go(`uprawnienia/wnioski?w=${id}`) })
+    notify(op === 'odebranie' && canRevoke ? `Odebranie ${id} przekazane do wykonania` : `Złożono wniosek ${id}`, { label: 'Otwórz', run: () => go(`${base}/wnioski?w=${id}`) })
   }
 
   const steps = routeFor(who, items[0]?.what ? ownerOf(items[0].what) : 'właściciel zasobu', needsCompliance(items[0]?.what ?? '', items[0]?.level ?? 'Odczyt'))
 
   return (
-    <Drawer open={open} onClose={onClose} title="Nowy wniosek o dostęp" icon="key"
+    <Drawer open={open} onClose={onClose} title={self ? 'Poproś o dostęp' : 'Nowy wniosek o dostęp'} icon="key"
       footer={<><span className="muted" style={{ paddingLeft: 8 }}>{kind === 'uprawnienie' ? `${items.length} ${items.length === 1 ? 'pozycja' : 'pozycje'}` : '1 rola'}</span><span className="grow" />
         <button className="btn btn-ghost" onClick={onClose}>Anuluj</button>
         <button className="btn btn-primary" onClick={save}><Icon name="send" size={14} />{op === 'odebranie' && canRevoke ? 'Odbierz dostęp' : 'Złóż wniosek'}</button></>}>
       <div className="dw-sec">
         <div className="field">
           <label htmlFor="rq-who">Osoba</label>
-          <select id="rq-who" className="select" value={who} onChange={e => setWho(e.target.value)}>{people.map(p => <option key={p.name}>{p.name}</option>)}</select>
+          {self
+            ? <div className="ro" id="rq-who">{user.name}<span className="muted">&nbsp;· {user.title}</span></div>
+            : <select id="rq-who" className="select" value={who} onChange={e => setWho(e.target.value)}>{people.map(p => <option key={p.name}>{p.name}</option>)}</select>}
         </div>
-        <div className="field">
-          <span className="flabel">Operacja</span>
-          <Segmented label="Operacja" value={op} onChange={setOp} options={[{ value: 'nadanie', label: 'Nadanie' }, { value: 'odebranie', label: 'Odebranie' }]} />
-        </div>
-        <div className="field">
-          <span className="flabel">Czego dotyczy</span>
-          <Segmented label="Rodzaj" value={kind} onChange={k => (k === 'rola' && !hr) ? undefined : setKind(k)}
-            options={[{ value: 'uprawnienie', label: 'Pojedyncze uprawnienie' }, { value: 'rola', label: 'Cała rola' }]} />
-          {kind === 'rola' && <p className="hint">Przydzielenie całej roli inicjuje HR.</p>}
-        </div>
+        {self ? (
+          <p className="hint">Prosisz o pojedyncze uprawnienie. Całą rolę przydziela HR.</p>
+        ) : <>
+          <div className="field">
+            <span className="flabel">Operacja</span>
+            <Segmented label="Operacja" value={op} onChange={setOp} options={[{ value: 'nadanie', label: 'Nadanie' }, { value: 'odebranie', label: 'Odebranie' }]} />
+          </div>
+          <div className="field">
+            <span className="flabel">Czego dotyczy</span>
+            <Segmented label="Rodzaj" value={kind} onChange={k => (k === 'rola' && !hr) ? undefined : setKind(k)}
+              options={[{ value: 'uprawnienie', label: 'Pojedyncze uprawnienie' }, { value: 'rola', label: 'Cała rola' }]} />
+            {kind === 'rola' && <p className="hint">Przydzielenie całej roli inicjuje HR.</p>}
+          </div>
+        </>}
       </div>
 
       <div className="dw-sec">

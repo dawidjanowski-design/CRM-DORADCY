@@ -47,7 +47,7 @@ export function Profil() {
         </InsetCard>
 
         <InsetCard title="Role w MS OS" icon="layers" count={persona.msRoles.length}
-          right={<a className="btn btn-ghost btn-sm" href="#/uprawnienia/osoby">Moje dostępy<Icon name="arrow-right" size={14} /></a>}>
+          right={<a className="btn btn-ghost btn-sm" href="#/moje-dostepy">Moje dostępy<Icon name="arrow-right" size={14} /></a>}>
           <div className="ic-pad prof-roles">{persona.msRoles.map(r => <span key={r} className="chip"><Icon name="users" size={14} />{r}</span>)}</div>
         </InsetCard>
       </div>

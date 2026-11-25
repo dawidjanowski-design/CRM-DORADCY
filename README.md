@@ -15,7 +15,8 @@ npm run dev
 |---|---|---|
 | Logowanie | `#/logowanie` | Konto Microsoft, rozwijany login i hasło, kod SMS (numer SMS-a, licznik 60 s, limit 5/h), blokada, wygasła sesja, pomoc IT |
 | Strona główna | `#/strona-glowna` | Na razie bez treści, ale w pełnym szkielecie z menu głównym |
-| Zarządzanie uprawnieniami | `#/uprawnienia/osoby`, `/role`, `/wnioski` | Wejście z menu: IT → Uprawnienia. Dostępy z rozwijanym źródłem (rola albo nadanie), odebranie, edycja roli z podglądem zmian, wnioski z pozycjami o osobnych statusach, zatwierdzenie, odmowa z powodem, potwierdzenie wykonania przez IT |
+| Moje dostępy (doradca) | `#/moje-dostepy`, `/wnioski` | Wejście z profilu: „Moje dostępy”. Własne dostępy ze źródłem (rola albo nadanie), własne wnioski ze statusem każdej pozycji i informacją, na kogo czeka, prośba o pojedyncze uprawnienie |
+| Uprawnienia (ekrany IT) | `#/uprawnienia/wnioski`, `/osoby`, `/role`, `/zasoby` | Sekcja IT: Uprawnienia, CBU - Konta, CBU - Role, CBU - Zasoby. Pełna ewidencja, odebranie, edycja ról (dane i pola, poziom, zakres, czynności) z podglądem zmian, potwierdzenie ręcznego wykonania przez IT. Decyzje „Zatwierdź/Odmów” należą do osób decydujących, więc tu widać tylko, na kogo czeka pozycja |
 | Mój profil | `#/profil` | Wejście z menu awatara: Profil. Kontakt służbowy, miejsce w firmie, role MS OS, skrót do dostępów |
 
 Nie ma widoków per rola. Jest jeden zalogowany użytkownik (`src/data/user.ts`).
