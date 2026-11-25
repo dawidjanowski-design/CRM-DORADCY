@@ -199,63 +199,123 @@ function Recent() {
   )
 }
 
-/* ---------- wyszukiwarka ⌘K: tylko widoczne moduły ---------- */
-type Hit = { id: string; label: string; sub: string; icon: string; to: string }
-const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l')
+/* ---------- wyszukiwarka ⌘K ----------
+   Pusty stan: ostatnio przeglądane i szybkie akcje. Po wpisaniu: moduły pogrupowane według sekcji menu
+   (tylko widoczne w menu) i pasujące akcje. Tab przełącza zakres, strzałki wybierają, Enter otwiera. */
+type Hit = { id: string; group: string; label: string; sub?: string; icon: string; to: string; kind: 'modul' | 'akcja' }
+type Scope = 'all' | 'modul' | 'akcja'
+const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l')
+
+const ACTIONS: Hit[] = [
+  { id: 'a-dostep', group: 'Szybkie akcje', label: 'Poproś o dostęp', sub: 'Uprawnienia', icon: 'key', to: 'moje-dostepy?nowy=1', kind: 'akcja' },
+  { id: 'a-wnioski', group: 'Szybkie akcje', label: 'Moje wnioski o dostęp', sub: 'Uprawnienia', icon: 'file-text', to: 'moje-dostepy/wnioski', kind: 'akcja' },
+  { id: 'a-dostepy', group: 'Szybkie akcje', label: 'Moje dostępy', sub: 'Uprawnienia', icon: 'unlock', to: 'moje-dostepy', kind: 'akcja' },
+  { id: 'a-profil', group: 'Szybkie akcje', label: 'Mój profil', sub: 'Konto', icon: 'user', to: 'profil', kind: 'akcja' },
+  { id: 'a-wyloguj', group: 'Szybkie akcje', label: 'Wyloguj', sub: 'Konto', icon: 'log-out', to: 'logowanie?wylogowano=1', kind: 'akcja' },
+]
+const RECENT_HITS: Hit[] = [
+  { id: 'r-tx', group: 'Ostatnio przeglądane', label: 'Transakcje', sub: 'Sprzedaż · Obrót', icon: 'trending-up', to: 'transakcje', kind: 'modul' },
+  { id: 'r-dost', group: 'Ostatnio przeglądane', label: 'Moje dostępy', sub: 'Uprawnienia', icon: 'unlock', to: 'moje-dostepy', kind: 'akcja' },
+  { id: 'r-kl', group: 'Ostatnio przeglądane', label: 'Klienci', sub: 'Klient', icon: 'users', to: 'm/klienci/klienci', kind: 'modul' },
+]
+
+/* pogrubienie dopasowanego fragmentu (bez polskich znaków w porównaniu) */
+function Mark({ text, q }: { text: string; q: string }) {
+  const f = fold(q.trim()); if (!f) return <>{text}</>
+  const i = fold(text).indexOf(f); if (i < 0) return <>{text}</>
+  return <>{text.slice(0, i)}<mark>{text.slice(i, i + f.length)}</mark>{text.slice(i + f.length)}</>
+}
 
 function CommandBar({ open, onClose, sections }: { open: boolean; onClose: () => void; sections: NavSection[] }) {
   const [q, setQ] = useState('')
+  const [scope, setScope] = useState<Scope>('all')
   const [sel, setSel] = useState(0)
   const input = useRef<HTMLInputElement>(null)
   const back = useRef<HTMLElement | null>(null)
-  const all = useMemo<Hit[]>(() => sections.flatMap(s => s.groups.flatMap(g => g.items.map(i => ({
-    id: s.id + i.label, label: i.label, sub: g.title ? `${s.label} · ${g.title}` : s.label, icon: s.icon, to: itemRoute(s, i),
+
+  const modules = useMemo<Hit[]>(() => sections.flatMap(s => s.groups.flatMap(g => g.items.map(i => ({
+    id: s.id + i.label, group: s.label, label: i.label, sub: g.title, icon: s.icon, to: itemRoute(s, i), kind: 'modul' as const,
   })))), [sections])
-  const hits = useMemo(() => { const f = fold(q.trim()); return (f ? all.filter(h => fold(h.label + ' ' + h.sub).includes(f)) : all).slice(0, 50) }, [q, all])
+
+  const f = fold(q.trim())
+  const match = (h: Hit) => !f || fold(h.label + ' ' + (h.sub ?? '') + ' ' + h.group).includes(f)
+  const mods = modules.filter(match), acts = ACTIONS.filter(match)
+  const hits = useMemo(() => {
+    if (!f) return scope === 'modul' ? modules.slice(0, 40) : scope === 'akcja' ? ACTIONS : [...RECENT_HITS, ...ACTIONS.filter(x => !RECENT_HITS.some(r => r.to === x.to))]
+    return scope === 'modul' ? mods : scope === 'akcja' ? acts : [...acts, ...mods]
+  }, [f, scope, modules]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!open) return
     back.current = document.activeElement as HTMLElement
-    setQ(''); setSel(0)
+    setQ(''); setSel(0); setScope('all')
     const t = window.setTimeout(() => input.current?.focus(), 20)
     return () => { window.clearTimeout(t); back.current?.focus?.() }
   }, [open])
-  useEffect(() => setSel(0), [q])
+  useEffect(() => setSel(0), [q, scope])
   useEffect(() => { document.getElementById(`cmd-o-${sel}`)?.scrollIntoView({ block: 'nearest' }) }, [sel])
 
+  const SCOPES: { v: Scope; l: string; n: number; icon: string }[] = [
+    { v: 'all', l: 'Wszystko', n: f ? mods.length + acts.length : modules.length + ACTIONS.length, icon: 'search' },
+    { v: 'modul', l: 'Moduły', n: mods.length, icon: 'grid' },
+    { v: 'akcja', l: 'Akcje', n: acts.length, icon: 'zap' },
+  ]
   const run = (h?: Hit) => { if (!h) return; onClose(); go(h.to) }
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setSel(s => Math.min(s + 1, hits.length - 1)) }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setSel(s => Math.max(s - 1, 0)) }
     else if (e.key === 'Enter') { e.preventDefault(); run(hits[sel]) }
     else if (e.key === 'Escape') { e.preventDefault(); onClose() }
-    else if (e.key === 'Tab') e.preventDefault()
+    else if (e.key === 'Tab') { e.preventDefault(); const i = SCOPES.findIndex(s => s.v === scope); setScope(SCOPES[(i + (e.shiftKey ? -1 : 1) + SCOPES.length) % SCOPES.length].v) }
   }
 
+  let last = ''
   return (
     <>
       <div className={`scrim dlg-scrim ${open ? 'open' : ''}`} onClick={onClose} aria-hidden="true" />
       <div className={`cmd ${open ? 'open' : ''}`} role="dialog" aria-modal="true" aria-label="Szukaj" aria-hidden={!open} onKeyDown={onKey}>
         <div className="cmd-in">
-          <Icon name="search" />
-          <input ref={input} value={q} onChange={e => setQ(e.target.value)} placeholder="Szukaj modułu…" role="combobox" aria-expanded="true"
+          <Icon name="search" size={18} />
+          <input ref={input} value={q} onChange={e => setQ(e.target.value)} placeholder="Szukaj modułów i akcji…" role="combobox" aria-expanded="true"
             aria-controls="cmd-list" aria-activedescendant={hits.length ? `cmd-o-${sel}` : undefined} autoComplete="off" spellCheck={false} tabIndex={open ? 0 : -1} />
+          {q && <button className="ibtn sm" onClick={() => { setQ(''); input.current?.focus() }} aria-label="Wyczyść" tabIndex={-1}><Icon name="x" size={14} /></button>}
           <span className="kbd">Esc</span>
         </div>
-        <div className="cmd-list" id="cmd-list" role="listbox" aria-label="Wyniki">
-          {hits.length === 0 && <div className="cmd-empty"><b>Brak wyników</b>Szukamy w modułach widocznych w menu.</div>}
-          {hits.map((h, i) => (
-            <div key={h.id} id={`cmd-o-${i}`} className="opt" role="option" aria-selected={i === sel} onMouseMove={() => setSel(i)} onClick={() => run(h)}>
-              <span className="oi"><Icon name={h.icon} /></span>
-              <span className="ot"><span className="trunc">{h.label}</span><span className="sub trunc">{h.sub}</span></span>
-              <span className="go">Otwórz <Icon name="corner-down-left" size={14} /></span>
-            </div>
+        <div className="cmd-scopes" role="tablist" aria-label="Zakres wyszukiwania">
+          {SCOPES.map(s => (
+            <button key={s.v} role="tab" aria-selected={scope === s.v} className="scope" tabIndex={-1} onClick={() => { setScope(s.v); input.current?.focus() }}>
+              <Icon name={s.icon} size={12} />{s.l}<span className="n">{s.n}</span>
+            </button>
           ))}
         </div>
+        <div className="cmd-list" id="cmd-list" role="listbox" aria-label="Wyniki">
+          {hits.length === 0 && (
+            <div className="cmd-empty">
+              <span className="cmd-empty-i"><Icon name="search" size={18} /></span>
+              <b>Brak wyników dla „{q}”</b>
+              <span>Szukamy w modułach widocznych w menu i w szybkich akcjach.</span>
+            </div>
+          )}
+          {hits.map((h, i) => {
+            const head = h.group !== last ? (last = h.group) : null
+            return (
+              <div key={h.id + i}>
+                {head && <div className="cmd-g">{head}</div>}
+                <div id={`cmd-o-${i}`} className="opt" role="option" aria-selected={i === sel} onMouseMove={() => setSel(i)} onClick={() => run(h)}>
+                  <span className={`oi ${h.kind === 'akcja' ? 'act' : ''}`}><Icon name={h.icon} size={14} /></span>
+                  <span className="ot"><span className="trunc"><Mark text={h.label} q={q} /></span>{h.sub && <span className="sub trunc">{h.sub}</span>}</span>
+                  <span className="go">{h.kind === 'akcja' ? 'Wykonaj' : 'Otwórz'}<span className="kbd">↵</span></span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
         <div className="cmd-foot">
-          <span className="trunc">{all.length} modułów w menu</span><span className="grow" />
-          <span><span className="kbd">↑</span><span className="kbd">↓</span> Wybierz</span>
-          <span><span className="kbd">↵</span> Otwórz</span>
+          <span><span className="kbd">↑</span><span className="kbd">↓</span>Wybierz</span>
+          <span><span className="kbd">↵</span>Otwórz</span>
+          <span><span className="kbd">Tab</span>Zakres</span>
+          <span className="grow" />
+          <span className="num">{hits.length} {hits.length === 1 ? 'wynik' : hits.length % 10 >= 2 && hits.length % 10 <= 4 && (hits.length % 100 < 12 || hits.length % 100 > 14) ? 'wyniki' : 'wyników'}</span>
         </div>
       </div>
     </>

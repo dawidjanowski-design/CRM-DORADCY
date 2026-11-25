@@ -213,3 +213,10 @@ button.r:focus-visible,a.r:focus-visible{outline:2px solid var(--focus);outline-
 @keyframes shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
 @keyframes spin{to{rotate:360deg}}
 .spin{animation:spin 900ms linear infinite}
+
+/* toast: wyższy, z oddechem (44 px); z przyciskiem akcji 4 px wcięcia + przycisk 32 → promień 12 */
+.toast{min-height:44px;gap:10px;padding:10px 16px 10px 14px;font-size:13px;line-height:20px}
+.toast:has(button){padding:6px 6px 6px 14px}
+.toast .t-ico{margin-right:0;display:flex}
+.toast .t-msg{padding-right:0}
+.toast button{height:32px;padding:0 12px;font-weight:500}

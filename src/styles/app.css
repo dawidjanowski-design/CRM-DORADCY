@@ -403,3 +403,41 @@
 .r .two .meta{margin-top:2px}
 .plist .r .two{padding:8px 0}
 .preq-i .two{padding:10px 0}
+
+/* ================= ⌘K: dopracowana paleta =================
+   panel 16 = opcje 8 + wcięcie 8; wiersze 40; kafelki ikon 24 z pierścieniem */
+.cmd{width:min(620px,calc(100vw - 16px))}
+.cmd-in{height:56px;gap:12px;padding:0 12px 0 18px}
+.cmd-in>.ico{color:var(--t-4)}
+.cmd-in input{font-size:15px}
+.cmd-in .ibtn.sm{color:var(--t-5)}
+.cmd-scopes{flex:none;display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--divider)}
+.scope{height:26px;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 8px;border:0;border-radius:8px;background:transparent;color:var(--t-3);font-size:12px;cursor:pointer;
+  transition-property:background-color,color,box-shadow;transition-duration:150ms;transition-timing-function:ease-out}
+.scope .ico{color:var(--t-5)}
+.scope .n{color:var(--t-5);font-variant-numeric:tabular-nums}
+.scope[aria-selected="true"]{background:var(--surface);color:var(--t-strong);box-shadow:0 0 0 1px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06)}
+.scope[aria-selected="true"] .ico{color:var(--t-3)}
+@media (hover:hover){.scope:not([aria-selected="true"]):hover{background:var(--hover);color:var(--t)}}
+.cmd-list{padding:4px 8px 8px;max-height:420px}
+.cmd-g{height:30px;padding:0 10px 6px;font-size:12px;color:var(--t-5)}
+.opt{height:40px;gap:12px;padding:0 10px 0 8px;scroll-margin:36px}
+.opt .oi{width:24px;height:24px;border-radius:7px;background:var(--surface);color:var(--t-3);box-shadow:0 0 0 1px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04)}
+.opt .oi.act{background:var(--accent-wash);color:var(--accent-text);box-shadow:0 0 0 1px rgba(47,123,246,.2)}
+.opt[aria-selected="true"]{background:var(--chip)}
+.opt[aria-selected="true"] .oi{color:var(--t-strong)}
+.opt .ot{align-items:baseline;gap:10px}
+.opt .sub{font-size:12px;color:var(--t-5)}
+.opt .sub::before{content:"— ";color:var(--divider)}
+.opt mark{background:transparent;color:var(--t-strong);font-weight:600}
+.opt .go{gap:8px;font-size:12px;color:var(--t-4)}
+.cmd-empty{display:flex;flex-direction:column;align-items:center;gap:4px;padding:36px 16px 32px;text-align:center;color:var(--t-4);line-height:20px}
+.cmd-empty b{margin:8px 0 0;color:var(--t-strong);font-weight:600}
+.cmd-empty-i{width:36px;height:36px;border-radius:10px;background:var(--chip);color:var(--t-4);display:flex;align-items:center;justify-content:center}
+.cmd-foot{height:40px;gap:16px;padding:0 16px;background:var(--row-hover)}
+.cmd-foot>span{gap:6px}
+.cmd-foot .kbd{background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08),inset 0 -1px 0 rgba(0,0,0,.06)}
+/* listy obok tabel (osoby, role, wnioski) i „Wnioski w toku”: ten sam oddech co wiersze tabel */
+.plist .r{flex:none}   /* przewijana lista flex nie może ściskać wierszy */
+.plist .r .two{padding:12px 0}
+.preq-i .two{padding:12px 0}

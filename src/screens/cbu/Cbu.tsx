@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { go, routeFor, useApp } from '../../store'
 import { itemState, PEOPLE, PREDEFINED, RESOURCES, ROLES, SCOPES, type ReqItem, type Level } from '../../data/cbu'
 import { Drawer, Icon, PageHead, Segmented } from '../../components/ui'
@@ -23,8 +23,11 @@ export function pending(requests: ReturnType<typeof useApp>['requests']) {
 
 export function Cbu({ view, self = false }: { view: View; self?: boolean }) {
   const { requests, user } = useApp()
-  const [drawer, setDrawer] = useState<{ person?: string } | null>(null)
+  const { route } = useApp()
+  const [drawer, setDrawer] = useState<{ person?: string } | null>(() => route.params.get('nowy') === '1' ? {} : null)
   const base = self ? 'moje-dostepy' : 'uprawnienia'
+  // akcja „Poproś o dostęp” z wyszukiwarki ⌘K: otwórz formularz i wyczyść parametr
+  useEffect(() => { if (route.params.get('nowy') === '1') { setDrawer({}); go(self ? base : `${base}/${view}`) } }, [route.params.get('nowy')]) // eslint-disable-line react-hooks/exhaustive-deps
   const open = pending(self ? requests.filter(r => r.person === user.name || r.author === user.name) : requests).length
   const v: View = self && (view === 'role' || view === 'zasoby') ? 'osoby' : view
   const tab = v === 'zasoby' ? 'role' : v

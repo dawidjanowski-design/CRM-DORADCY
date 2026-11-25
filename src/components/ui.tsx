@@ -201,7 +201,7 @@ export function ToastView() {
   return (
     <div className={`toast ${toast ? 'show' : ''}`} role="status" aria-live="polite">
       {last && <>
-        <span className="t-ico"><Icon name="check-circle" size={14} /></span>
+        <span className="t-ico"><Icon name="check-circle" size={16} /></span>
         <span className="t-msg">{last.msg}</span>
         {last.action && <button onClick={last.action.run}>{last.action.label}</button>}
       </>}
