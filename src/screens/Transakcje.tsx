@@ -58,8 +58,8 @@ export function Transakcje() {
     switch (c.key) {
       case 'client': return <span className="trunc" style={{ color: 'var(--t-strong)' }}>{t.client}</span>
       case 'isin': return <span className="mono">{t.isin}</span>
-      case 'dir': return <span className={`dirp ${t.dir === 'Kupno' ? 'buy' : ''}`}><Icon name={t.dir === 'Kupno' ? 'arrow-down-left' : 'arrow-up-right'} size={12} />{t.dir}</span>
-      case 'market': return <span className="stg"><span className="sdot" style={{ background: t.market === 'OTC' ? '#8B5CF6' : t.market === 'Catalyst' ? '#F4A300' : '#4B7BF5' }} />{t.market}</span>
+      case 'dir': return <span className={`dirp ${t.dir === 'Kupno' ? 'buy' : 'sell'}`}><Icon name={t.dir === 'Kupno' ? 'arrow-down-left' : 'arrow-up-right'} size={12} />{t.dir}</span>
+      case 'market': return <span className={`mkt mkt-${t.market === 'OTC' ? 'otc' : t.market === 'Catalyst' ? 'cat' : 'wse'}`}><span className="sdot" />{t.market}</span>
       case 'nominal': return <span className="num">{fmtMoney(t.nominal)} <span className="dim">PLN</span></span>
       case 'settle': return <span className="num">{fmtDate(t.settle)}</span>
       case 'id': return <span className="mono dim">{t.id}</span>

@@ -151,3 +151,16 @@
 
 /* toast nad stopką tabeli */
 .toast{bottom:52px}
+
+/* ---------- kolory plakietek: kupno zielone, sprzedaż czerwona; rynki w pastelowych parach ---------- */
+.dirp.buy{background:#E3F5E7;color:#1D6532}
+.dirp.buy .ico{color:#1FB34A}
+.dirp.sell{background:#FDECEC;color:#A12A2F}
+.dirp.sell .ico{color:#E5484D}
+.mkt{height:22px;display:inline-flex;align-items:center;gap:6px;padding:0 8px;border-radius:6px;white-space:nowrap}
+.mkt .sdot{width:6px;height:6px;border-radius:3px}
+.mkt-wse{background:#EAF0FE;color:#2A4BA0}.mkt-wse .sdot{background:#4B7BF5}
+.mkt-cat{background:#FFF3DC;color:#8A5300}.mkt-cat .sdot{background:#F4A300}
+.mkt-otc{background:#F1ECFE;color:#5B3DC8}.mkt-otc .sdot{background:#8B5CF6}
+/* zaznaczony wiersz ma błękitne tło: plakietki zachowują kontrast dzięki pierścieniowi */
+.trow.sel .dirp,.trow.sel .mkt{box-shadow:0 0 0 1px rgba(255,255,255,.7)}
