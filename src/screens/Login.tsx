@@ -179,12 +179,12 @@ function BrandPanel() {
 
 /* ---------- formularz IT pod linkiem „Problem z logowaniem?” ----------
    Działa bez logowania w sieci firmy lub po VPN (brief). Bez VPN: telefon do IT. */
-const ISSUES: [string, string, string][] = [
-  ['haslo', 'Nie pamiętam hasła', 'key'],
-  ['sms', 'Nie dostaję kodu SMS', 'message-square'],
-  ['blokada', 'Konto jest zablokowane', 'lock'],
-  ['microsoft', 'Nie działa logowanie kontem Microsoft', 'log-in'],
-  ['inny', 'Inny problem', 'help-circle'],
+const ISSUES: [string, string][] = [
+  ['haslo', 'Nie pamiętam hasła'],
+  ['sms', 'Nie dostaję kodu SMS'],
+  ['blokada', 'Konto jest zablokowane'],
+  ['microsoft', 'Nie działa logowanie kontem Microsoft'],
+  ['inny', 'Inny problem'],
 ]
 
 function HelpForm({ initialLogin, onBack }: { initialLogin: string; onBack: () => void }) {
@@ -194,7 +194,7 @@ function HelpForm({ initialLogin, onBack }: { initialLogin: string; onBack: () =
   const [tried, setTried] = useState(false)
   const [sent, setSent] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const first = useRef<HTMLInputElement>(null)
+  const first = useRef<HTMLSelectElement>(null)
   useEffect(() => { first.current?.focus() }, [])
 
   const needDesc = issue === 'inny'
@@ -220,16 +220,15 @@ function HelpForm({ initialLogin, onBack }: { initialLogin: string; onBack: () =
       <h1 className="auth-h" style={{ marginBottom: 6 }}>Zgłoś problem do IT</h1>
       <p className="auth-net"><Icon name="wifi" size={14} /><span>Formularz działa bez logowania w sieci firmy lub po VPN. Bez dostępu do VPN zadzwoń do IT: <b className="num">{IT_PHONE}</b>.</span></p>
       <form className="auth-form" onSubmit={submit} noValidate>
-        <fieldset className="issues" aria-describedby="issue-msg">
-          <legend className="flabel">Czego dotyczy problem?</legend>
-          {ISSUES.map(([k, l, ic], i) => (
-            <label key={k} className={`issue ${issue === k ? 'on' : ''}`}>
-              <input ref={i === 0 ? first : undefined} type="radio" name="issue" value={k} checked={issue === k} onChange={() => setIssue(k)} />
-              <span className="issue-i"><Icon name={ic} size={14} /></span><span className="grow">{l}</span><span className="rd" />
-            </label>
-          ))}
+        <div className="field">
+          <label htmlFor="h-issue">Czego dotyczy problem?</label>
+          <select ref={first} id="h-issue" className="select input-lg" value={issue} onChange={e => setIssue(e.target.value)}
+            aria-invalid={tried && errs.issue} aria-describedby="issue-msg">
+            <option value="" disabled>Wybierz z listy</option>
+            {ISSUES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+          </select>
           <div id="issue-msg">{tried && errs.issue && <p className="err"><Icon name="alert-circle" size={14} />Wybierz, czego dotyczy problem.</p>}</div>
-        </fieldset>
+        </div>
         <div className="field">
           <label htmlFor="h-who">Firmowy e-mail lub login</label>
           <input id="h-who" className="input input-lg" value={who} onChange={e => setWho(e.target.value)} autoComplete="username" spellCheck={false}
