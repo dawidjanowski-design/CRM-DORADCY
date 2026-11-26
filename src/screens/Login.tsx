@@ -64,6 +64,7 @@ export function Login() {
           <div className="auth-card">
             {expired && <div className="auth-note" role="status"><Icon name="clock" size={14} /><span>Sesja wygasła po 30 minutach bezczynności. Zaloguj się ponownie, a wrócisz do pracy.</span></div>}
             {loggedOut && !expired && <div className="auth-note ok" role="status"><Icon name="check-circle" size={14} /><span>Wylogowano. Do zobaczenia.</span></div>}
+            <p className="auth-kicker">Michael Ström Dane Operacje Sprawy</p>
             <h1 className="auth-h">Zaloguj się</h1>
             <button className="btn btn-primary btn-lg btn-block" onClick={signInMs} autoFocus>
               <MicrosoftMark />Zaloguj kontem Microsoft

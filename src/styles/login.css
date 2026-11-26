@@ -59,3 +59,5 @@
 /* marka na logowaniu: to samo logo słowne co w panelu */
 .auth-brand.brand-static{gap:12px;color:#343434}
 .auth-brand.brand-static .wordmark{display:block}
+/* rozwinięcie skrótu MS DOS nad „Zaloguj się”: zwykła, cicha linia */
+.auth-kicker{margin:0 0 8px;font-size:13px;line-height:18px;color:var(--t-5)}
