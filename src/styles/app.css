@@ -31,7 +31,7 @@
 .panel-closed .panel{flex-basis:0;opacity:0}
 .panel-ico{width:24px;height:24px;flex:none;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--t-3);
   box-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)}
-/* marka w nagłówku panelu: logo słowne, kreska, nazwa systemu (wysokość jak znak w pasku L1) */
+/* marka w górnym pasku: samo logo słowne */
 .brand{display:flex;align-items:center;gap:10px;height:32px;padding:0 6px;margin-left:-6px;border-radius:8px;color:#343434;text-decoration:none;transition:background-color 150ms ease-out,scale 150ms ease-out}
 .brand .wordmark{display:block;flex:none}
 .brand-sep{width:1px;height:16px;background:var(--divider);flex:none}
@@ -326,7 +326,6 @@
   .page{padding:16px}
   .ph,.fbar{padding-left:16px}
   .search .trunc{display:none}.search{width:auto}
-  .ab-brand .brand-sep,.ab-brand .brand-app{display:none}
   .acc,.perms{min-width:640px}
   .ic-b:has(.acc),.ic-b:has(.perms){overflow-x:auto}
   .track{grid-auto-flow:row}

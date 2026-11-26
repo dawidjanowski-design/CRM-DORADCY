@@ -127,13 +127,11 @@ export function Shell({ children }: { children: ReactNode }) {
   )
 }
 
-/* Marka: oryginalne logo Michael / Ström (bez zmian w znaku), obok nazwa systemu */
+/* Marka: oryginalne logo Michael / Ström, bez zmian w znaku */
 function Brand() {
   return (
     <a className="brand" href="#/pulpit" aria-label="MS DOS, Michael / Ström Dom Maklerski. Przejdź do pulpitu">
       <Wordmark width={104} label="" />
-      <span className="brand-sep" />
-      <span className="brand-app" title="Dane · Operacje · Sprawy">DOS</span>
     </a>
   )
 }
