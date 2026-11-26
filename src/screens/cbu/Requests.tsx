@@ -87,7 +87,7 @@ function ItemCard({ r, it }: { r: Request; it: ReqItem }) {
 
   const steps = useMemo(() => [
     ...it.steps.map(s => ({ label: s.role, who: s.who, state: s.decision === 'ok' ? 'ok' : s.decision === 'no' ? 'no' : (st.s === 'czeka' && st.step === s ? 'now' : 'todo'), at: s.at })),
-    { label: 'Wykonanie', who: it.exec === 'auto' ? 'MS OS automatycznie' : 'IT ręcznie', state: it.executed ? 'ok' : st.s === 'do_wykonania' ? 'now' : 'todo', at: it.executed?.at },
+    { label: 'Wykonanie', who: it.exec === 'auto' ? 'MS DOS automatycznie' : 'IT ręcznie', state: it.executed ? 'ok' : st.s === 'do_wykonania' ? 'now' : 'todo', at: it.executed?.at },
   ], [it, st])
 
   // po potwierdzeniu wniosek zostaje otwarty, choć znika z filtra „W toku”
@@ -97,7 +97,7 @@ function ItemCard({ r, it }: { r: Request; it: ReqItem }) {
     <InsetCard title={<span className="trunc">{it.op === 'odebranie' ? 'Odebranie' : 'Nadanie'} · pozycja {it.id}</span>} right={<Status tone={lab.tone}>{lab.label}</Status>}>
       <div className="item">
         <div className="item-top">
-          <span className="tile"><Icon name={it.system === 'MS OS' ? (it.kind === 'rola' ? 'users' : 'unlock') : 'folder'} size={14} /></span>
+          <span className="tile"><Icon name={it.system === 'MS DOS' ? (it.kind === 'rola' ? 'users' : 'unlock') : 'folder'} size={14} /></span>
           <span className="two"><span style={{ color: 'var(--t-strong)' }}>{it.what}</span>
             <span className="meta">{[it.level, it.scope, it.system].filter(Boolean).join(' · ')}</span></span>
         </div>

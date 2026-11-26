@@ -13,7 +13,7 @@ export type User = {
   phone?: string           // telefon służbowy, jeśli przypisany
   login: string
   about?: string           // opis pracownika, jeśli zapisano
-  msRoles: string[]        // nazwy przypisanych ról MS OS
+  msRoles: string[]        // nazwy przypisanych ról MS DOS
   canEditProfile?: boolean // „Edytuj profil” tylko z odpowiednim uprawnieniem
 }
 

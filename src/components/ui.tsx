@@ -1,3 +1,4 @@
+import { WORDMARK } from '../data/brand'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { useApp } from '../store'
@@ -29,12 +30,13 @@ export function MicrosoftMark({ size = 16 }: { size?: number }) {
   )
 }
 
-/* Znak MS OS: kafelek aplikacji z miękkim gradientem i geometrycznym glifem na siatce 16 */
-export function MsMark({ size = 28 }: { size?: number }) {
+/* Znak MS DOS: kafelek aplikacji z miękkim gradientem i geometrycznym glifem na siatce 16 */
+/* Logo słowne Michael / Ström Dom Maklerski (112 × 17); kolor dziedziczy z tekstu */
+export function Wordmark({ width = 112, label = 'Michael / Ström Dom Maklerski' }: { width?: number; label?: string }) {
   return (
-    <span className="ms-mark" style={{ width: size, height: size, borderRadius: size >= 32 ? 9 : 8 }} aria-hidden="true">
-      <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 16 16"><path d="M2 13V3l3.2 4.2L8 3l2.8 4.2L14 3v10h-2.4V8.4L8 13 4.4 8.4V13z" fill="currentColor" /></svg>
-    </span>
+    <svg className="wordmark" width={width} height={width * 17 / 112} viewBox="0 0 112 17" role="img" aria-label={label}>
+      {WORDMARK.map((d, i) => <path key={i} d={d} fill="currentColor" />)}
+    </svg>
   )
 }
 

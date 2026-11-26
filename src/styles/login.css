@@ -37,7 +37,7 @@
   .auth2 .auth-brand,.auth-foot{left:20px}
 }
 
-/* ---------- ilustracja: znak MS OS z modułami na orbitach ---------- */
+/* ---------- ilustracja: znak MS DOS z modułami na orbitach ---------- */
 .am{position:relative;width:400px;height:400px;max-width:100%}
 .am>*{position:absolute;left:50%;top:50%;translate:-50% -50%}
 .am-ring{border-radius:50%;border:1px solid rgba(255,255,255,.08)}
@@ -47,10 +47,15 @@
 .orb-i{position:absolute;translate:-50% -50%}
 .orb-c{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:12px;color:rgba(255,255,255,.85);
   background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 8px 20px -8px rgba(0,0,0,.5);backdrop-filter:blur(6px)}
-.am-core .ms-mark{background-color:#fff;color:#131316;border-radius:18px!important;
-  box-shadow:0 0 0 10px rgba(255,255,255,.04),0 0 0 22px rgba(255,255,255,.025),0 0 80px rgba(91,141,247,.45)}
+/* środek: kafelek z ikoną modułów (64 px), ten sam materiał co ikony na orbitach, tylko jasny */
+.am-tile{width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:18px;background:#fff;color:#131316;
+  background-image:linear-gradient(180deg,#fff,#F1F2F4);
+  box-shadow:inset 0 1px 0 #fff,0 0 0 10px rgba(255,255,255,.04),0 0 0 22px rgba(255,255,255,.025),0 0 80px rgba(91,141,247,.45)}
 @media (prefers-reduced-motion:no-preference){
   .orb.o1{animation:spin 90s linear infinite}.orb.o1 .orb-c{animation:spin 90s linear infinite reverse}
   .orb.o2{animation:spin 140s linear infinite reverse}.orb.o2 .orb-c{animation:spin 140s linear infinite}
   .am{animation:fade 600ms ease-out both}
 }
+/* marka na logowaniu: to samo logo słowne co w panelu */
+.auth-brand.brand-static{gap:12px;color:#343434}
+.auth-brand.brand-static .wordmark{display:block}

@@ -62,7 +62,7 @@ function PersonDetail({ name, onRequest }: { name: string; onRequest: (p: string
       ? accesses.filter(a => a.person === name && a.resource === 'Dane kontaktowe klienta' && a.sources.some(s => s.kind === 'rola'))
       : []
     revoke(confirm.id)
-    notify(confirm.system === 'MS OS'
+    notify(confirm.system === 'MS DOS'
       ? `Odebrano: ${confirm.resource.toLowerCase()} (${confirm.level.toLowerCase()}).${left.length ? ` Zostaje ${left[0].level.toLowerCase()} z roli ${left[0].sources[0].name}.` : ''}`
       : `Odebranie przekazane do wykonania przez IT`)
     setConfirm(null)
@@ -144,7 +144,7 @@ function PersonDetail({ name, onRequest }: { name: string; onRequest: (p: string
       <Dialog open={!!confirm} onClose={() => setConfirm(null)} title={`Odebrać dostęp: ${confirm?.resource ?? ''}?`}
         sub={confirm && <>{name} straci <b style={{ color: 'var(--t)' }}>{confirm.level.toLowerCase()} · {confirm.scope.toLowerCase()}</b> z nadania indywidualnego. Dostępy wynikające z ról zostają bez zmian.</>}
         footer={<><button className="btn btn-ghost" onClick={() => setConfirm(null)}>Anuluj</button><button className="btn btn-primary" onClick={doRevoke}>Odbierz dostęp</button></>}>
-        <p className="hint">{confirm?.system === 'MS OS' ? 'MS OS wykona zmianę od razu.' : 'Zmianę wykona IT. Do tego czasu dostęp pozostaje aktywny.'} Odebranie trafi do historii jako wniosek.</p>
+        <p className="hint">{confirm?.system === 'MS DOS' ? 'MS DOS wykona zmianę od razu.' : 'Zmianę wykona IT. Do tego czasu dostęp pozostaje aktywny.'} Odebranie trafi do historii jako wniosek.</p>
       </Dialog>
     </div>
   )

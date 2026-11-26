@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { go, useApp } from '../store'
-import { Icon, MicrosoftMark, MsMark } from '../components/ui'
+import { Icon, MicrosoftMark, Wordmark } from '../components/ui'
 
 type Mode = 'wybor' | 'ms' | 'sms' | 'blokada' | 'blokada-it' | 'pomoc'
 const IT_PHONE = '22 455 10 99'
@@ -58,7 +58,7 @@ export function Login() {
   return (
     <div className="auth2">
       <div className="auth-col enter">
-        <div className="auth-brand"><MsMark size={28} /><span>MS OS</span></div>
+        <div className="auth-brand brand-static"><Wordmark width={120} label="Michael / Ström Dom Maklerski" /><span className="brand-sep" /><span className="brand-app">MS DOS</span></div>
 
         {mode === 'wybor' && (
           <div className="auth-card">
@@ -105,7 +105,7 @@ export function Login() {
           <div className="auth-card auth-center" role="status" aria-live="polite">
             <span className="auth-tile"><MicrosoftMark size={18} /></span>
             <h1 className="auth-h" style={{ marginBottom: 4 }}>Przekierowujemy do Microsoft</h1>
-            <p className="muted">Po potwierdzeniu konta wrócisz do MS OS.</p>
+            <p className="muted">Po potwierdzeniu konta wrócisz do MS DOS.</p>
             <span className="auth-spin"><Icon name="loader" size={16} className="spin" /></span>
             <button className="btn btn-ghost" onClick={() => setMode('wybor')}>Anuluj</button>
           </div>
@@ -141,7 +141,7 @@ export function Login() {
   )
 }
 
-/* ---------- panel marki: grafit, miękkie światło, znak MS OS z modułami na orbitach ----------
+/* ---------- panel marki: grafit, miękkie światło, znak MS DOS z modułami na orbitach ----------
    Ikony to sekcje menu głównego; orbity obracają się bardzo wolno (statyczne przy ograniczonym ruchu). */
 const INNER = ['home', 'users', 'calendar', 'trending-up', 'box']
 const OUTER = ['volume-2', 'shield', 'file-text', 'briefcase', 'user-check', 'settings']
@@ -166,7 +166,7 @@ function BrandPanel() {
           <span className="am-ring r1" /><span className="am-ring r2" />
           <Orbit icons={INNER} r={110} cls="o1" />
           <Orbit icons={OUTER} r={190} cls="o2" />
-          <span className="am-core"><MsMark size={64} /></span>
+          <span className="am-core"><span className="am-tile"><Icon name="layers" size={28} /></span></span>
         </div>
       </div>
       <div className="ap-copy">

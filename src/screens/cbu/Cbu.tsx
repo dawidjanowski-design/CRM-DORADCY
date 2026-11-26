@@ -62,7 +62,7 @@ export function Cbu({ view, self = false }: { view: View; self?: boolean }) {
 
 /* ---------- formularz wniosku ---------- */
 type Draft = { key: number; what: string; level: Exclude<Level, 'Brak'>; scope: string }
-const OPTIONS = [...PREDEFINED.map(p => ({ name: p.name, system: 'MS OS' })), ...RESOURCES.filter(r => r.system !== 'MS OS').map(r => ({ name: r.name, system: r.system }))]
+const OPTIONS = [...PREDEFINED.map(p => ({ name: p.name, system: 'MS DOS' })), ...RESOURCES.filter(r => r.system !== 'MS DOS').map(r => ({ name: r.name, system: r.system }))]
 const ownerOf = (name: string) => RESOURCES.find(r => r.name === name)?.owner ?? 'Dorota Wrona'
 const needsCompliance = (name: string, level: string) => level === 'Edycja' || /kontaktowe|Eksport|Lista klientów/.test(name)
 
@@ -94,12 +94,12 @@ function RequestDrawer({ open, person, onClose }: { open: boolean; person?: stri
     setTried(true)
     if (!valid) return
     const reqItems: ReqItem[] = kind === 'rola'
-      ? [(() => { const r = ROLES.find(x => x.name === role)!; return { id: '1', op, kind: 'rola' as const, what: `Rola „${r.name}”`, system: 'MS OS', scope: 'Według roli', exec: 'auto' as const, steps: op === 'odebranie' && canRevoke ? [] : routeFor(who, r.owner, r.compliance), history: [] } })()]
+      ? [(() => { const r = ROLES.find(x => x.name === role)!; return { id: '1', op, kind: 'rola' as const, what: `Rola „${r.name}”`, system: 'MS DOS', scope: 'Według roli', exec: 'auto' as const, steps: op === 'odebranie' && canRevoke ? [] : routeFor(who, r.owner, r.compliance), history: [] } })()]
       : items.map((d, i) => {
         const sys = OPTIONS.find(o => o.name === d.what)!.system
         return {
-          id: String(i + 1), op, kind: 'uprawnienie' as const, what: d.what, system: sys, level: d.level, scope: sys === 'MS OS' ? d.scope : 'Bez zakresu',
-          exec: sys === 'MS OS' ? 'auto' as const : 'it' as const,
+          id: String(i + 1), op, kind: 'uprawnienie' as const, what: d.what, system: sys, level: d.level, scope: sys === 'MS DOS' ? d.scope : 'Bez zakresu',
+          exec: sys === 'MS DOS' ? 'auto' as const : 'it' as const,
           steps: op === 'odebranie' && canRevoke ? [] : routeFor(who, ownerOf(d.what), needsCompliance(d.what, d.level)), history: [],
         }
       })
@@ -150,8 +150,8 @@ function RequestDrawer({ open, person, onClose }: { open: boolean; person?: stri
                 <label htmlFor={`rq-w-${d.key}`}>Uprawnienie lub zasób</label>
                 <select id={`rq-w-${d.key}`} className="select" value={d.what} onChange={e => upd(d.key, { what: e.target.value })} aria-invalid={tried && !d.what}>
                   <option value="">Wybierz…</option>
-                  <optgroup label="Uprawnienia MS OS">{PREDEFINED.map(p => <option key={p.name}>{p.name}</option>)}</optgroup>
-                  <optgroup label="Zasoby poza MS OS">{RESOURCES.filter(r => r.system !== 'MS OS').map(r => <option key={r.name} value={r.name}>{r.name}</option>)}</optgroup>
+                  <optgroup label="Uprawnienia MS DOS">{PREDEFINED.map(p => <option key={p.name}>{p.name}</option>)}</optgroup>
+                  <optgroup label="Zasoby poza MS DOS">{RESOURCES.filter(r => r.system !== 'MS DOS').map(r => <option key={r.name} value={r.name}>{r.name}</option>)}</optgroup>
                 </select>
                 {tried && !d.what && <p className="err"><Icon name="alert-circle" size={14} />Wybierz, do czego potrzebny jest dostęp.</p>}
               </div>
@@ -159,7 +159,7 @@ function RequestDrawer({ open, person, onClose }: { open: boolean; person?: stri
                 <div className="field"><span className="flabel">Poziom</span>
                   <Segmented label="Poziom" value={d.level} onChange={level => upd(d.key, { level })} options={[{ value: 'Odczyt', label: 'Odczyt' }, { value: 'Edycja', label: 'Edycja' }]} /></div>
                 <div className="field"><label htmlFor={`rq-s-${d.key}`}>Zakres</label>
-                  <select id={`rq-s-${d.key}`} className="select" value={d.scope} onChange={e => upd(d.key, { scope: e.target.value })} disabled={OPTIONS.find(o => o.name === d.what)?.system !== undefined && OPTIONS.find(o => o.name === d.what)?.system !== 'MS OS'}>
+                  <select id={`rq-s-${d.key}`} className="select" value={d.scope} onChange={e => upd(d.key, { scope: e.target.value })} disabled={OPTIONS.find(o => o.name === d.what)?.system !== undefined && OPTIONS.find(o => o.name === d.what)?.system !== 'MS DOS'}>
                     {SCOPES.map(s => <option key={s}>{s}</option>)}</select></div>
               </div>
             </div>
@@ -179,7 +179,7 @@ function RequestDrawer({ open, person, onClose }: { open: boolean; person?: stri
           {op === 'odebranie' && canRevoke
             ? <p className="hint">Odebranie przez uprawnioną osobę przechodzi od razu do wykonania.</p>
             : <ol className="path">{steps.map((s, i) => <li key={i}><span className="path-n num">{i + 1}</span><span>{s.role}</span><span className="muted trunc">{s.who}</span></li>)}
-                <li><span className="path-n"><Icon name="zap" size={12} /></span><span>Wykonanie</span><span className="muted">MS OS automatycznie, zasoby zewnętrzne IT</span></li></ol>}
+                <li><span className="path-n"><Icon name="zap" size={12} /></span><span>Wykonanie</span><span className="muted">MS DOS automatycznie, zasoby zewnętrzne IT</span></li></ol>}
         </div>
       </div>
     </Drawer>

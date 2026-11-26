@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { go, useApp } from '../store'
 import { findByRoute, itemRoute, NAV, NAV_BOTTOM, visibleNav, type NavSection } from '../data/nav'
-import { Avatar, Icon, MsMark, menuKeys, useDismiss } from './ui'
+import { Avatar, Icon, Wordmark, menuKeys, useDismiss } from './ui'
 
 const NARROW = '(max-width: 900px)'
 
@@ -54,9 +54,22 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className={`shell ${open && current ? '' : 'panel-closed'}`}>
+      {/* górny pasek na całą szerokość: przełącznik panelu nad paskiem ikon, marka nad panelem.
+         Zwijanie panelu nie przesuwa ani logo, ani wyszukiwarki. */}
+      <header className="appbar">
+        <span className="ab-rail">
+          <button className="ibtn" onClick={() => setOpen(o => !o)} aria-label={open ? 'Zwiń panel modułu' : 'Pokaż panel modułu'} aria-expanded={open} title={open ? 'Zwiń panel' : 'Pokaż panel'}><Icon name="sidebar" /></button>
+        </span>
+        <span className="ab-brand"><Brand /></span>
+        <button className="search" onClick={() => setCmd(true)} aria-haspopup="dialog" aria-keyshortcuts="Meta+K Control+K">
+          <Icon name="search" size={14} /><span className="trunc">Szukaj…</span><span className="kbd">⌘K</span>
+        </button>
+        <span className="grow" />
+        <Recent />
+        <UserMenu />
+      </header>
+      <div className="shell-body">
       <nav className="rail" aria-label="Moduły" onKeyDown={railKeys}>
-        <a className="rail-logo" href="#/pulpit" aria-label="MS OS, pulpit"
-          onMouseEnter={e => showTip(e.currentTarget, 'Pulpit')} onMouseLeave={() => setTip(null)}><MsMark size={28} /></a>
         <div className="rail-list">{top.map(rail)}</div>
         {bottom.length > 0 && <span className="rail-sep" />}
         <div className="rail-list">{bottom.map(rail)}</div>
@@ -65,11 +78,9 @@ export function Shell({ children }: { children: ReactNode }) {
 
       {current && (
         <aside className="panel" aria-label={current.label} aria-hidden={!open} {...(open ? {} : { inert: '' })}>
-          <div className="panel-head">
+          <div className="panel-sec">
             <span className="panel-ico"><Icon name={current.icon} size={14} /></span>
             <h2>{current.label}</h2>
-            <span className="grow" />
-            <button className="ibtn" onClick={() => setOpen(false)} aria-label="Zwiń panel" title="Zwiń panel"><Icon name="sidebar" /></button>
           </div>
           <div className="panel-body">
             {current.groups.map((g, gi) => {
@@ -108,19 +119,22 @@ export function Shell({ children }: { children: ReactNode }) {
       {open && current && <div className="panel-scrim" onClick={() => setOpen(false)} aria-hidden="true" />}
 
       <div className="col">
-        <header className="topbar">
-          <button className={`ibtn tb-menu ${open ? '' : 'show'}`} onClick={() => setOpen(o => !o)} aria-label="Pokaż panel modułu" aria-expanded={open} title="Pokaż panel"><Icon name="sidebar" /></button>
-          <button className="search" onClick={() => setCmd(true)} aria-haspopup="dialog" aria-keyshortcuts="Meta+K Control+K">
-            <Icon name="search" size={14} /><span className="trunc">Szukaj…</span><span className="kbd">⌘K</span>
-          </button>
-          <span className="grow" />
-          <Recent />
-          <UserMenu />
-        </header>
         <main className="card" id="main">{children}</main>
+      </div>
       </div>
       <CommandBar open={cmd} onClose={() => setCmd(false)} sections={all} />
     </div>
+  )
+}
+
+/* Marka: oryginalne logo Michael / Ström (bez zmian w znaku), obok nazwa systemu */
+function Brand() {
+  return (
+    <a className="brand" href="#/pulpit" aria-label="MS DOS, Michael / Ström Dom Maklerski. Przejdź do pulpitu">
+      <Wordmark width={104} label="" />
+      <span className="brand-sep" />
+      <span className="brand-app" title="Dane · Operacje · Sprawy">DOS</span>
+    </a>
   )
 }
 

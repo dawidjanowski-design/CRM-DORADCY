@@ -104,10 +104,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const done = decision === 'ok' && steps.every(s => s.decision === 'ok')
     let next: ReqItem = { ...it, steps, history }
     if (done && it.exec === 'auto') {
-      next = { ...next, executed: { at, by: 'MS OS (automatycznie)' }, history: [...history, { at, who: 'MS OS', text: it.op === 'nadanie' ? 'Nadano automatycznie' : 'Odebrano automatycznie' }] }
+      next = { ...next, executed: { at, by: 'MS DOS (automatycznie)' }, history: [...history, { at, who: 'MS DOS', text: it.op === 'nadanie' ? 'Nadano automatycznie' : 'Odebrano automatycznie' }] }
       grant(req, next)
     } else if (done) {
-      next = { ...next, history: [...history, { at, who: 'MS OS', text: 'Przekazano do wykonania przez IT' }] }
+      next = { ...next, history: [...history, { at, who: 'MS DOS', text: 'Przekazano do wykonania przez IT' }] }
     }
     patchItem(reqId, itemId, () => next)
   }
@@ -132,13 +132,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const a = accesses.find(x => x.id === accessId)
     if (!a) return
     const at = nowLabel()
-    const auto = a.system === 'MS OS'
+    const auto = a.system === 'MS DOS'
     const id = `W-2026-0${++seq.current}`
     const item: ReqItem = {
       id: '1', op: 'odebranie', kind: 'uprawnienie', what: a.resource, system: a.system, level: a.level, scope: a.scope,
       exec: auto ? 'auto' : 'it', steps: [],
-      executed: auto ? { at, by: 'MS OS (automatycznie)' } : undefined,
-      history: [{ at, who: me, text: 'Odebrał(a) dostęp' }, { at, who: 'MS OS', text: auto ? 'Odebrano automatycznie' : 'Przekazano do wykonania przez IT' }],
+      executed: auto ? { at, by: 'MS DOS (automatycznie)' } : undefined,
+      history: [{ at, who: me, text: 'Odebrał(a) dostęp' }, { at, who: 'MS DOS', text: auto ? 'Odebrano automatycznie' : 'Przekazano do wykonania przez IT' }],
     }
     setRequests(rs => [{ id, person: a.person, author: me, createdAt: at, reason: 'Odebranie przez uprawnioną osobę.', items: [item] }, ...rs])
     if (auto) setAccesses(xs => xs.filter(x => x.id !== accessId))

@@ -24,7 +24,7 @@ function Root() {
   const { route } = useApp()
   const login = route.path === 'logowanie'
   useEffect(() => {
-    document.title = login ? 'Zaloguj się · MS OS' : 'MS OS'
+    document.title = login ? 'Zaloguj się · MS DOS' : 'MS DOS'
     document.getElementById('main')?.scrollTo(0, 0)
   }, [route.path, login])
   return (

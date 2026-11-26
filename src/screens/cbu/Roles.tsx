@@ -26,7 +26,7 @@ export function Roles({ initialTab = 'role' }: { initialTab?: 'role' | 'zasoby' 
           ))}
           {tab === 'zasoby' && (res.length ? res.map(r => (
             <button key={r.name} className={`r ${r.name === resource?.name ? 'sel' : ''}`} role="option" aria-selected={r.name === resource?.name} onClick={() => setSelRes(r.name)}>
-              <span className="tile"><Icon name={r.system === 'MS OS' ? 'bar-chart-2' : 'folder'} size={14} /></span>
+              <span className="tile"><Icon name={r.system === 'MS DOS' ? 'bar-chart-2' : 'folder'} size={14} /></span>
               <span className="two"><span className="trunc">{r.name}</span><span className="meta trunc">{r.system}</span></span>
             </button>
           )) : <div className="r muted">Nie jesteś właścicielem żadnego zasobu.</div>)}
@@ -35,15 +35,15 @@ export function Roles({ initialTab = 'role' }: { initialTab?: 'role' | 'zasoby' 
       {tab === 'role' && role && <RoleDetail key={role.name} role={role} />}
       {tab === 'zasoby' && resource && (
         <div className="split-r">
-          <div className="person-h"><span className="tile lg"><Icon name={resource.system === 'MS OS' ? 'bar-chart-2' : 'folder'} /></span>
+          <div className="person-h"><span className="tile lg"><Icon name={resource.system === 'MS DOS' ? 'bar-chart-2' : 'folder'} /></span>
             <div style={{ minWidth: 0 }}><h2 className="ent-title trunc">{resource.name}</h2><p className="muted" style={{ marginTop: 2 }}>{resource.desc}</p></div></div>
           <div className="stats">
             <div><span className="k">System</span><span className="v sm">{resource.system}</span></div>
             <div><span className="k">Właściciel</span><span className="v sm">{resource.owner}</span></div>
-            <div><span className="k">Wykonanie zmian</span><span className="v sm">{resource.exec === 'auto' ? 'Automatycznie w MS OS' : 'Ręcznie przez IT'}</span></div>
+            <div><span className="k">Wykonanie zmian</span><span className="v sm">{resource.exec === 'auto' ? 'Automatycznie w MS DOS' : 'Ręcznie przez IT'}</span></div>
             <div><span className="k">Osoby z dostępem</span><span className="v num">{resource.holders}</span></div>
           </div>
-          <p className="hint">{resource.exec === 'it' ? 'Po zatwierdzeniu wniosku pozycja czeka, aż IT potwierdzi ręczne wykonanie zmiany.' : 'Po ostatniej decyzji MS OS nadaje dostęp sam.'}</p>
+          <p className="hint">{resource.exec === 'it' ? 'Po zatwierdzeniu wniosku pozycja czeka, aż IT potwierdzi ręczne wykonanie zmiany.' : 'Po ostatniej decyzji MS DOS nadaje dostęp sam.'}</p>
         </div>
       )}
     </div>
@@ -91,7 +91,7 @@ function RoleDetail({ role }: { role: RoleDef }) {
         right={edit ? <AddPerm existing={draft.map(p => p.name)} onAdd={(name, fields) => setDraft(d => [...d, { id: 'n' + Date.now(), name, fields: [...fields], level: 'Odczyt', scope: 'Własni klienci', actions: { eksport: false, druk: false } }])} />
           : <span className="dim" style={{ fontSize: 12, paddingRight: 4 }}>Tylko do odczytu</span>}>
         <div className="tbl perms" role="table" aria-label={`Uprawnienia roli ${role.name}`}>
-          <div className="tr th" role="row"><span role="columnheader">Uprawnienie MS OS</span><span role="columnheader">Dane i pola</span><span role="columnheader">Poziom</span><span role="columnheader">Zakres</span><span role="columnheader">Czynności</span><span role="columnheader"><span className="sr-only">Usuń</span></span></div>
+          <div className="tr th" role="row"><span role="columnheader">Uprawnienie MS DOS</span><span role="columnheader">Dane i pola</span><span role="columnheader">Poziom</span><span role="columnheader">Zakres</span><span role="columnheader">Czynności</span><span role="columnheader"><span className="sr-only">Usuń</span></span></div>
           {draft.map(p => {
             const b = role.perms.find(x => x.id === p.id)
             const dirty = !same(p, b)
@@ -167,7 +167,7 @@ function AddPerm({ existing, onAdd }: { existing: string[]; onAdd: (name: string
       <button ref={btn} className="btn btn-ghost btn-sm" aria-haspopup="menu" aria-expanded={open} onClick={() => open ? setOpen(false) : openMenu()} disabled={!left.length}>
         <Icon name="plus" size={14} />Dodaj uprawnienie</button>
       <div ref={pop} className={`pop right ${open ? 'open' : ''}`} role="menu" aria-label="Predefiniowane uprawnienia" style={{ top: 30, right: 0, width: 300 }} onKeyDown={e => menuKeys(e, () => setOpen(false))}>
-        <div className="m-h">Predefiniowane uprawnienia MS OS</div>
+        <div className="m-h">Predefiniowane uprawnienia MS DOS</div>
         <div style={{ maxHeight: 280, overflowY: 'auto' }}>
           {left.map(p => (
             <button key={p.name} className="mi" role="menuitem" tabIndex={-1} style={{ height: 44 }} onClick={() => { onAdd(p.name, p.fields); setOpen(false); btn.current?.focus() }}>

@@ -5,7 +5,7 @@ import { Avatar, Dialog, Icon, InsetCard, PageHead } from '../components/ui'
 
 /* Mój profil zalogowanej osoby (brief, punkt 4).
    Nagłówek z pasem tła i dużym awatarem, chipy z najważniejszymi danymi,
-   po lewej kontakt i miejsce w firmie, po prawej role MS OS i skrót do własnych dostępów. */
+   po lewej kontakt i miejsce w firmie, po prawej role MS DOS i skrót do własnych dostępów. */
 
 const ROLE_DESC: Record<string, string> = {
   'Pracownik MS': 'Podstawowy dostęp każdego pracownika: kalendarz, regulacje, zgłoszenia.',
@@ -73,7 +73,7 @@ export function Profil() {
 
         <section className="prof-sec">
           <div className="prof-sec-h">
-            <div><h3>Role w MS OS</h3><p><span className="num">{myAccess}</span> aktywnych dostępów{myPending > 0 && <> · <span className="num">{myPending}</span> {myPending === 1 ? 'wniosek' : 'wnioski'} w toku</>}</p></div>
+            <div><h3>Role w MS DOS</h3><p><span className="num">{myAccess}</span> aktywnych dostępów{myPending > 0 && <> · <span className="num">{myPending}</span> {myPending === 1 ? 'wniosek' : 'wnioski'} w toku</>}</p></div>
             <a className="btn btn-ghost btn-sm" href="#/moje-dostepy">Moje dostępy<Icon name="arrow-right" size={14} /></a>
           </div>
           <InsetCard>
