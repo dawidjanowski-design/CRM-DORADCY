@@ -58,13 +58,16 @@ export function Login() {
   return (
     <div className="auth2">
       <div className="auth-col enter">
-        <div className="auth-brand brand-static"><Wordmark width={120} label="Michael / Ström Dom Maklerski" /><span className="brand-sep" /><span className="brand-app">MS DOS</span></div>
+        <div className="auth-brand brand-static"><Wordmark width={120} label="Michael / Ström Dom Maklerski" /></div>
 
         {mode === 'wybor' && (
           <div className="auth-card">
             {expired && <div className="auth-note" role="status"><Icon name="clock" size={14} /><span>Sesja wygasła po 30 minutach bezczynności. Zaloguj się ponownie, a wrócisz do pracy.</span></div>}
             {loggedOut && !expired && <div className="auth-note ok" role="status"><Icon name="check-circle" size={14} /><span>Wylogowano. Do zobaczenia.</span></div>}
-            <p className="auth-kicker" aria-label="Michael Ström Dane Operacje Sprawy"><DosText text="Michael Ström Dane Operacje Sprawy" /></p>
+            <div className="auth-dos" role="img" aria-label="MS DOS: Dane, Operacje, Sprawy">
+              <span className="auth-dos-t"><DosText text="MS DOS" step={90} spin={420} /></span>
+              <span className="auth-dos-s" aria-hidden="true">Dane Operacje Sprawy</span>
+            </div>
             <h1 className="auth-h">Zaloguj się</h1>
             <button className="btn btn-primary btn-lg btn-block" onClick={signInMs} autoFocus>
               <MicrosoftMark />Zaloguj kontem Microsoft
@@ -146,13 +149,13 @@ export function Login() {
    Każdy znak przez chwilę losuje bloki i symbole DOS, potem zatrzymuje się na właściwej literze.
    Czcionka o stałej szerokości, więc nic nie skacze. Przy ograniczonym ruchu tekst od razu w całości. */
 const GLYPHS = '░▒▓█▌▐▀▄■□<>/\\|_-=+*#%01'
-function DosText({ text }: { text: string }) {
+function DosText({ text, step = 32, spin = 260 }: { text: string; step?: number; spin?: number }) {
   const still = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
   const [out, setOut] = useState(still ? text : text.replace(/\S/g, ' '))
   const [done, setDone] = useState(still)
   useEffect(() => {
     if (still) return
-    const start = performance.now(), STEP = 32, SPIN = 260   // co 32 ms kolejna litera, każda losuje przez 260 ms
+    const start = performance.now(), STEP = step, SPIN = spin   // co `step` ms kolejna litera, każda losuje przez `spin` ms
     let raf = 0
     const tick = (now: number) => {
       const t = now - start
@@ -169,7 +172,7 @@ function DosText({ text }: { text: string }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [text, still])
+  }, [text, still, step, spin])
   return <span className={`dos ${done ? 'is-done' : ''}`} aria-hidden="true">{out}<span className="dos-cur">_</span></span>
 }
 

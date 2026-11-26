@@ -59,8 +59,12 @@
 /* marka na logowaniu: to samo logo słowne co w panelu */
 .auth-brand.brand-static{gap:12px;color:#343434}
 .auth-brand.brand-static .wordmark{display:block}
-/* rozwinięcie skrótu MS DOS nad „Zaloguj się”: zwykła, cicha linia */
-.auth-kicker{margin:0 0 8px;font-size:12px;line-height:18px;color:var(--t-5)}
+/* nazwa systemu nad „Zaloguj się”: duży napis MS DOS w stylu terminala, pod nim rozwinięcie skrótu */
+.auth-dos{display:flex;flex-direction:column;gap:2px;margin:0 0 24px;padding-bottom:20px;border-bottom:1px solid var(--divider)}
+.auth-dos-t{font-size:22px;line-height:28px;font-weight:400;letter-spacing:0;color:var(--t-strong)}
+.auth-dos-t .dos{letter-spacing:.02em;position:relative}
+.auth-dos-t .dos-cur{position:absolute;left:100%;margin-left:2px;color:var(--t-5);font-weight:400}
+.auth-dos-s{font-size:12px;line-height:16px;color:var(--t-5);word-spacing:4px;animation:fade 400ms ease-out 700ms both}
 .dos{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.02em;white-space:pre}
 /* kursor: miga w trakcie i kilka razy po skończeniu, potem znika */
 .dos-cur{display:inline-block;margin-left:1px;color:var(--t-3);animation:dos-blink 1s steps(1) infinite}
