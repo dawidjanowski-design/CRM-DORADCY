@@ -64,7 +64,7 @@
 .auth-dos-t{font-size:22px;line-height:28px;font-weight:400;letter-spacing:0;color:var(--t-strong)}
 .auth-dos-t .dos{letter-spacing:.02em;position:relative}
 .auth-dos-t .dos-cur{position:absolute;left:100%;margin-left:2px;color:var(--t-5);font-weight:400}
-.auth-dos-s{font-size:12px;line-height:16px;color:var(--t-5);word-spacing:4px;animation:fade 400ms ease-out 700ms both}
+.auth-dos-s{font-size:12px;line-height:16px;color:var(--t-5);animation:fade 400ms ease-out 700ms both}
 .dos{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.02em;white-space:pre}
 /* kursor: miga w trakcie i kilka razy po skończeniu, potem znika */
 .dos-cur{display:inline-block;margin-left:1px;color:var(--t-3);animation:dos-blink 1s steps(1) infinite}

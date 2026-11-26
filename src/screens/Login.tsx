@@ -66,7 +66,7 @@ export function Login() {
             {loggedOut && !expired && <div className="auth-note ok" role="status"><Icon name="check-circle" size={14} /><span>Wylogowano. Do zobaczenia.</span></div>}
             <div className="auth-dos" role="img" aria-label="MS DOS: Dane, Operacje, Sprawy">
               <span className="auth-dos-t"><DosText text="MS DOS" step={90} spin={420} /></span>
-              <span className="auth-dos-s" aria-hidden="true">Dane Operacje Sprawy</span>
+              <span className="auth-dos-s" aria-hidden="true">Dane, Operacje, Sprawy</span>
             </div>
             <h1 className="auth-h">Zaloguj się</h1>
             <button className="btn btn-primary btn-lg btn-block" onClick={signInMs} autoFocus>
