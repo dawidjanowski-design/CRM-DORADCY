@@ -64,7 +64,7 @@ export function Login() {
           <div className="auth-card">
             {expired && <div className="auth-note" role="status"><Icon name="clock" size={14} /><span>Sesja wygasła po 30 minutach bezczynności. Zaloguj się ponownie, a wrócisz do pracy.</span></div>}
             {loggedOut && !expired && <div className="auth-note ok" role="status"><Icon name="check-circle" size={14} /><span>Wylogowano. Do zobaczenia.</span></div>}
-            <p className="auth-kicker">Michael Ström Dane Operacje Sprawy</p>
+            <p className="auth-kicker" aria-label="Michael Ström Dane Operacje Sprawy"><DosText text="Michael Ström Dane Operacje Sprawy" /></p>
             <h1 className="auth-h">Zaloguj się</h1>
             <button className="btn btn-primary btn-lg btn-block" onClick={signInMs} autoFocus>
               <MicrosoftMark />Zaloguj kontem Microsoft
@@ -140,6 +140,37 @@ export function Login() {
       <BrandPanel />
     </div>
   )
+}
+
+/* ---------- napis w stylu terminala: litery „dekodują się” od lewej, na końcu miga kursor ----------
+   Każdy znak przez chwilę losuje bloki i symbole DOS, potem zatrzymuje się na właściwej literze.
+   Czcionka o stałej szerokości, więc nic nie skacze. Przy ograniczonym ruchu tekst od razu w całości. */
+const GLYPHS = '░▒▓█▌▐▀▄■□<>/\\|_-=+*#%01'
+function DosText({ text }: { text: string }) {
+  const still = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  const [out, setOut] = useState(still ? text : text.replace(/\S/g, ' '))
+  const [done, setDone] = useState(still)
+  useEffect(() => {
+    if (still) return
+    const start = performance.now(), STEP = 32, SPIN = 260   // co 32 ms kolejna litera, każda losuje przez 260 ms
+    let raf = 0
+    const tick = (now: number) => {
+      const t = now - start
+      let all = true
+      const next = Array.from(text, (ch, i) => {
+        if (ch === ' ') return ' '
+        const from = i * STEP
+        if (t < from) { all = false; return ' ' }
+        if (t < from + SPIN) { all = false; return GLYPHS[(Math.random() * GLYPHS.length) | 0] }
+        return ch
+      }).join('')
+      setOut(next)
+      if (all) setDone(true); else raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [text, still])
+  return <span className={`dos ${done ? 'is-done' : ''}`} aria-hidden="true">{out}<span className="dos-cur">_</span></span>
 }
 
 /* ---------- panel marki: grafit, miękkie światło, znak MS DOS z modułami na orbitach ----------

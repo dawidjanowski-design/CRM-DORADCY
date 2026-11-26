@@ -60,4 +60,11 @@
 .auth-brand.brand-static{gap:12px;color:#343434}
 .auth-brand.brand-static .wordmark{display:block}
 /* rozwinięcie skrótu MS DOS nad „Zaloguj się”: zwykła, cicha linia */
-.auth-kicker{margin:0 0 8px;font-size:13px;line-height:18px;color:var(--t-5)}
+.auth-kicker{margin:0 0 8px;font-size:12px;line-height:18px;color:var(--t-5)}
+.dos{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.02em;white-space:pre}
+/* kursor: miga w trakcie i kilka razy po skończeniu, potem znika */
+.dos-cur{display:inline-block;margin-left:1px;color:var(--t-3);animation:dos-blink 1s steps(1) infinite}
+.dos.is-done .dos-cur{animation:dos-blink 1s steps(1) 3 forwards,dos-out 1ms 3s forwards}
+@keyframes dos-blink{50%{opacity:0}}
+@keyframes dos-out{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.dos-cur{display:none}}
